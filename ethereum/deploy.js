@@ -2,7 +2,7 @@ const HDWalletProvider = require("truffle-hdwallet-provider");
 const Web3 = require("web3");
 const provider = new HDWalletProvider(
 	"audit toast ginger dwarf exist wonder invest bundle cram poverty stand holiday",
-	"http://127.0.0.1:7545"
+	"http://10.42.0.86:7545"
 );
 const web3 = new Web3(provider);
 const compiledFactory = require("./build/PostFactory.json");
