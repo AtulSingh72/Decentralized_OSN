@@ -15,7 +15,7 @@ contract PostFactory {
 
 contract Post {
     string public image_hash;
-    address author;
+    address public author;
 
     function Post(string hash, address creator) public payable {
         image_hash = hash;

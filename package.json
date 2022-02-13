@@ -12,6 +12,7 @@
   "dependencies": {
     "fs-extra": "^10.0.0",
     "ganache-cli": "^6.12.2",
+    "ipfs-api": "^26.1.2",
     "next": "^4.1.4",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
