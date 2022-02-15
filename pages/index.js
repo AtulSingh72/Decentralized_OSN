@@ -38,7 +38,6 @@ class PostIndex extends Component {
 			}
 			return new_posts;
 		})(posts);
-		console.log(new_posts[0]);
 		return { posts: new_posts };
 	}
 
@@ -53,8 +52,9 @@ class PostIndex extends Component {
 		};
 	}
 
-	onSubmit(event) {
+	async onSubmit(event) {
 		event.preventDefault();
+		accounts = await web3.eth.getAccounts();
 		ipfs.files.add(this.state.buffer, async (error, result) => {
 			if (error) {
 				console.error(error);
@@ -63,6 +63,23 @@ class PostIndex extends Component {
 			await PostFactory.methods
 				.createPost(result[0].hash)
 				.send({ from: accounts[0] });
+			const posts = await PostFactory.methods.getPosts().call();
+			let new_posts = await (async function (posts) {
+				let new_posts = [];
+				for (let i = 0; i < posts.length; i++) {
+					const Post = new web3.eth.Contract(
+						JSON.parse(PostContract.interface),
+						posts[i]
+					);
+					const currentPost = {
+						imageUrl: await Post.methods.image_hash().call(),
+						author: await Post.methods.author().call(),
+					};
+					new_posts.push(currentPost);
+				}
+				return new_posts;
+			})(posts);
+			this.setState({ posts: new_posts });
 		});
 	}
 
@@ -74,7 +91,7 @@ class PostIndex extends Component {
 					<input type="submit" />
 				</form>
 				<div>
-					{this.props.posts.map((post) => (
+					{this.state.posts.map((post) => (
 						<div>
 							<img
 								src={`https://ipfs.io/ipfs/${post.imageUrl}`}
