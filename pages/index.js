@@ -285,6 +285,7 @@ class PostIndex extends Component {
 											height: "auto",
 											width: "auto",
 											margin: "0 auto",
+											maxHeight: "500px",
 										}}
 										onClick={this.imageZoom}
 									/>
