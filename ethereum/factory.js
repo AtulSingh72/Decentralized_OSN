@@ -3,7 +3,7 @@ import PostFactory from "./build/PostFactory.json";
 
 const instance = new web3.eth.Contract(
 	JSON.parse(PostFactory.interface),
-	"0xc92B1247402ca1a7dF83D5099c25b4f793f3dA01"
+	"0x85b279846bDEd34cb238823587391a54ED575486"
 );
 
 export default instance;
