@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PostFactory from "../ethereum/factory";
 import PostContract from "../ethereum/build/Post.json";
 import ipfs from "../ethereum/ipfs";
-import web3 from "../ethereum/web3";
+import { web3, metamask_provider } from "../ethereum/web3";
 import Head from "next/head";
 
 let accounts = [];
@@ -16,11 +16,14 @@ class PostIndex extends Component {
 			content: "",
 			zoomed: null,
 			loading: true,
+			uploading: false,
+			matamask: true,
 		};
 		this.captureFile = this.captureFile.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
 		this.imageZoom = this.imageZoom.bind(this);
 		this.readContent = this.readContent.bind(this);
+		this.takeback = this.takeback.bind(this);
 	}
 
 	async componentDidMount() {
@@ -56,48 +59,59 @@ class PostIndex extends Component {
 		reader.readAsArrayBuffer(file);
 		reader.onloadend = () => {
 			this.setState({ buffer: Buffer(reader.result) });
-			console.log("buffer", this.state.buffer);
 		};
+	}
+
+	takeback(event) {
+		event.preventDefault();
+		this.setState({ metamask: true });
 	}
 
 	async onSubmit(event) {
 		event.preventDefault();
 		accounts = await web3.eth.getAccounts();
-		console.log(accounts);
-		ipfs.files.add(this.state.buffer, async (error, result) => {
-			if (error) {
-				console.error(error);
-				return;
-			}
-			await PostFactory.methods
-				.createPost(result[0].hash, this.state.content)
-				.send({ from: accounts[0] });
-			const posts = await PostFactory.methods.getPosts().call();
-			let new_posts = await (async function (posts) {
-				let new_posts = [];
-				for (let i = 0; i < posts.length; i++) {
-					const Post = new web3.eth.Contract(
-						JSON.parse(PostContract.interface),
-						posts[i]
-					);
-					const currentPost = {
-						imageUrl: await Post.methods.image_hash().call(),
-						author: await Post.methods.author().call(),
-						content: await Post.methods.content().call(),
-					};
-					new_posts.push(currentPost);
+		if (metamask_provider == false) {
+			this.setState({ metamask: false });
+		} else {
+			this.setState({ metamask: true, uploading: true });
+			ipfs.files.add(this.state.buffer, async (error, result) => {
+				if (error) {
+					console.error(error);
+					return;
 				}
-				return new_posts;
-			})(posts);
-			this.setState({ posts: new_posts, content: "" });
-			const file_uploader = document.getElementById("file_upload");
-			file_uploader.value = "";
-		});
+				await PostFactory.methods
+					.createPost(result[0].hash, this.state.content)
+					.send({ from: accounts[0] });
+				const posts = await PostFactory.methods.getPosts().call();
+				let new_posts = await (async function (posts) {
+					let new_posts = [];
+					for (let i = 0; i < posts.length; i++) {
+						const Post = new web3.eth.Contract(
+							JSON.parse(PostContract.interface),
+							posts[i]
+						);
+						const currentPost = {
+							imageUrl: await Post.methods.image_hash().call(),
+							author: await Post.methods.author().call(),
+							content: await Post.methods.content().call(),
+						};
+						new_posts.push(currentPost);
+					}
+					return new_posts;
+				})(posts);
+				this.setState({
+					posts: new_posts,
+					content: "",
+					uploading: false,
+				});
+				const file_uploader = document.getElementById("file_upload");
+				file_uploader.value = "";
+			});
+		}
 	}
 
 	async imageZoom(event) {
 		event.preventDefault();
-		console.log(event.target.getBoundingClientRect());
 		if (this.state.zoomed !== null) {
 			this.setState({ zoomed: null });
 		} else {
@@ -108,7 +122,6 @@ class PostIndex extends Component {
 	readContent(event) {
 		event.preventDefault();
 		this.setState({ content: event.target.value });
-		console.log(this.state.content);
 	}
 
 	render() {
@@ -122,6 +135,10 @@ class PostIndex extends Component {
 						integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
 						crossorigin="anonymous"
 					></link>
+					<link
+						rel="stylesheet"
+						href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+					></link>
 					<script
 						src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
 						integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
@@ -134,6 +151,63 @@ class PostIndex extends Component {
 					></script>
 					<script src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0"></script>
 				</Head>
+				{this.state.metamask == false && (
+					<div
+						style={{
+							position: "fixed",
+							zIndex: "1",
+							width: "100%",
+							height: "100%",
+							textAlign: "center",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							left: "0",
+							top: "0",
+							background: "rgba(0, 0, 0, 0.8)",
+						}}
+					>
+						<div
+							style={{
+								width: "50%",
+								height: "50%",
+								background: "white",
+								borderRadius: "70px",
+								padding: "25px",
+							}}
+						>
+							<img
+								src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fyt3.ggpht.com%2Fa-%2FAAuE7mC1z-HXEKxL4YhAhc7WDHWA6Rnly1I592T5ag%3Ds900-mo-c-c0xffffffff-rj-k-no&f=1&nofb=1"
+								style={{
+									width: "200px",
+									margin: "0px 20px 10px",
+								}}
+							/>
+							<h2 style={{ margin: "5px" }}>OOPS!</h2>
+							<h5 style={{ margin: "10px" }}>
+								Either the MetaMask extension is not installed
+								or you aren't logged into metamask.
+							</h5>
+							<button
+								onClick={this.takeback}
+								className="btn btn-info"
+								style={{ margin: "20px 40px" }}
+							>
+								<i class="fa fa-arrow-left"></i> | Naah! Take me
+								back to feeds
+							</button>
+							<a
+								href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn"
+								className="btn btn-warning"
+								target={"_blank"}
+								style={{ margin: "20px 40px" }}
+							>
+								<i class="fa fa-chrome"></i> | Get MetaMask
+								Extenstion
+							</a>
+						</div>
+					</div>
+				)}
 				{this.state.loading && (
 					<div
 						style={{
@@ -208,7 +282,26 @@ class PostIndex extends Component {
 						className="btn btn-primary"
 						style={{ margin: "10px" }}
 					>
-						Submit
+						{this.state.uploading && (
+							<div style={{ margin: "5px" }}>
+								<span style={{ float: "left" }}>
+									<img
+										src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
+										style={{
+											height: "28px",
+											margin: "0 15px 0 0",
+										}}
+									/>
+								</span>
+								<span style={{ float: "right" }}>
+									<div>
+										Uploading...<br></br>It might take upto
+										10 mins!!
+									</div>
+								</span>
+							</div>
+						)}
+						{!this.state.uploading && "Submit"}
 					</button>
 				</form>
 				{this.state.zoomed !== null && (
