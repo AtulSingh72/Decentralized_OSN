@@ -18,12 +18,21 @@ class PostIndex extends Component {
 			loading: true,
 			uploading: false,
 			matamask: true,
+			is_donate: false,
+			min_tip: 0,
+			value: 0,
+			tip_post_key: 0,
+			donating: false,
+			disable_transact_okay: true,
 		};
 		this.captureFile = this.captureFile.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
 		this.imageZoom = this.imageZoom.bind(this);
 		this.readContent = this.readContent.bind(this);
 		this.takeback = this.takeback.bind(this);
+		this.transact = this.transact.bind(this);
+		this.donate = this.donate.bind(this);
+		this.isdonatebuttonon = this.isdonatebuttonon.bind(this);
 	}
 
 	async componentDidMount() {
@@ -52,6 +61,18 @@ class PostIndex extends Component {
 		return { posts: new_posts };
 	}
 
+	isdonatebuttonon(event) {
+		event.preventDefault();
+		let new_value = true;
+		if (event.target.value >= this.state.min_tip) {
+			new_value = false;
+		}
+		this.setState({
+			value: event.target.value,
+			disable_transact_okay: new_value,
+		});
+	}
+
 	captureFile(event) {
 		event.preventDefault();
 		const file = event.target.files[0];
@@ -64,13 +85,57 @@ class PostIndex extends Component {
 
 	takeback(event) {
 		event.preventDefault();
-		this.setState({ metamask: true });
+		this.setState({ metamask: true, is_donate: false });
+	}
+
+	async donate(event) {
+		event.persist();
+		event.preventDefault();
+		console.log(event.target);
+		let tip = await PostFactory.methods.min_contribution().call();
+		tip = web3.utils.fromWei(tip, "ether");
+		this.setState({
+			is_donate: true,
+			min_tip: tip,
+			tip_post_key: event.target.getAttribute("data-index"),
+		});
+	}
+
+	async transact(event) {
+		event.persist();
+		event.preventDefault();
+		accounts = await web3.eth.getAccounts();
+		console.log(accounts);
+		if (metamask_provider == false || accounts.length == 0) {
+			this.setState({ metamask: false });
+		} else {
+			this.setState({ metamask: true, donating: true });
+			const index = this.state.tip_post_key;
+			console.log(index);
+			const address = await PostFactory.methods
+				.deployedPosts(index)
+				.call();
+			const post = new web3.eth.Contract(
+				JSON.parse(PostContract.interface),
+				address
+			);
+			await post.methods.receiveContribution().send({
+				from: accounts[0],
+				value: web3.utils.toWei(this.state.value, "ether"),
+			});
+			this.setState({
+				metamask: true,
+				value: 0,
+				is_donate: false,
+				donating: false,
+			});
+		}
 	}
 
 	async onSubmit(event) {
 		event.preventDefault();
 		accounts = await web3.eth.getAccounts();
-		if (metamask_provider == false) {
+		if (metamask_provider == false || accounts.length == 0) {
 			this.setState({ metamask: false });
 		} else {
 			this.setState({ metamask: true, uploading: true });
@@ -151,6 +216,101 @@ class PostIndex extends Component {
 					></script>
 					<script src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0"></script>
 				</Head>
+				{this.state.is_donate == true && (
+					<div
+						style={{
+							position: "fixed",
+							zIndex: "1",
+							width: "100%",
+							height: "100%",
+							textAlign: "center",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							left: "0",
+							top: "0",
+							background: "rgba(0, 0, 0, 0.8)",
+						}}
+					>
+						<div
+							style={{
+								width: "50%",
+								height: "50%",
+								background: "white",
+								borderRadius: "70px",
+								padding: "25px",
+							}}
+						>
+							<img
+								src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.giphy.com%2Fmedia%2FMVgBbtMBGQTi6og4mF%2Fgiphy.gif&f=1&nofb=1"
+								style={{
+									width: "200px",
+									margin: "0px 20px 10px",
+								}}
+							/>
+							<h2 style={{ margin: "5px" }}>
+								Choose your TIP amount
+							</h2>
+							<div
+								className="input-group input-group-lg flex-nowrap"
+								style={{
+									width: "60%",
+									margin: "30px auto 10px",
+								}}
+							>
+								<input
+									className="form-control"
+									type="number"
+									placeholder={`Minimum TIP Amount is ${this.state.min_tip} ETH`}
+									min="10"
+									onChange={this.isdonatebuttonon}
+								/>
+								<span
+									className="input-group-text"
+									id="addon-wrapping"
+								>
+									ETH
+								</span>
+							</div>
+							<button
+								onClick={this.takeback}
+								className="btn btn-info"
+								style={{ margin: "20px 40px" }}
+							>
+								<i className="fa fa-close"></i> | Naah! Take me
+								back to feeds
+							</button>
+							<button
+								className="btn btn-warning"
+								style={{ margin: "20px 40px" }}
+								id="donate-ok"
+								onClick={this.transact}
+								disabled={this.state.disable_transact_okay}
+							>
+								<div>
+									{this.state.donating == true && (
+										<div>
+											<img
+												src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
+												style={{
+													height: "28px",
+													margin: "0 15px 0 0",
+												}}
+											/>
+											| Transaction is being performed
+										</div>
+									)}
+									{this.state.donating == false && (
+										<div>
+											<i className="fa fa-check"></i>|
+											Done! Send this TIP amount
+										</div>
+									)}
+								</div>
+							</button>
+						</div>
+					</div>
+				)}
 				{this.state.metamask == false && (
 					<div
 						style={{
@@ -193,8 +353,8 @@ class PostIndex extends Component {
 								className="btn btn-info"
 								style={{ margin: "20px 40px" }}
 							>
-								<i class="fa fa-arrow-left"></i> | Naah! Take me
-								back to feeds
+								<i className="fa fa-arrow-left"></i> | Naah!
+								Take me back to feeds
 							</button>
 							<a
 								href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn"
@@ -202,7 +362,7 @@ class PostIndex extends Component {
 								target={"_blank"}
 								style={{ margin: "20px 40px" }}
 							>
-								<i class="fa fa-chrome"></i> | Get MetaMask
+								<i className="fa fa-chrome"></i> | Get MetaMask
 								Extenstion
 							</a>
 						</div>
@@ -397,6 +557,31 @@ class PostIndex extends Component {
 										{post.content}
 									</p>
 								</div>
+								<hr
+									style={{
+										width: "80%",
+										margin: "0 auto 20px",
+									}}
+								></hr>
+								<button
+									className="btn btn-outline-dark"
+									style={{
+										width: "fit-content",
+										margin: "0 40px 20px",
+										padding: "10px",
+									}}
+									onClick={this.donate}
+									data-index={index}
+								>
+									<img
+										src="https://cdn-icons-png.flaticon.com/512/1777/1777889.png"
+										style={{
+											width: "28px",
+											margin: "auto 5px",
+										}}
+									/>
+									Tip this post
+								</button>
 							</div>
 						))}
 				</div>
