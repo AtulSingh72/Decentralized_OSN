@@ -33,6 +33,8 @@ class PostIndex extends Component {
 		this.transact = this.transact.bind(this);
 		this.donate = this.donate.bind(this);
 		this.isdonatebuttonon = this.isdonatebuttonon.bind(this);
+		this.postComment = this.postComment.bind(this);
+		this.commentHide = this.commentHide.bind(this);
 	}
 
 	async componentDidMount() {
@@ -53,6 +55,7 @@ class PostIndex extends Component {
 					imageUrl: await Post.methods.image_hash().call(),
 					author: await Post.methods.author().call(),
 					content: await Post.methods.content().call(),
+					comments: await Post.methods.getComments().call(),
 				};
 				new_posts.push(currentPost);
 			}
@@ -132,6 +135,103 @@ class PostIndex extends Component {
 		}
 	}
 
+	async commentHide(event) {
+		event.preventDefault();
+		const index = event.target.getAttribute("data-index");
+		var comments_div = document.getElementById("comments" + index);
+		if (comments_div.style.display === "none") {
+			comments_div.style.display = "block";
+		} else {
+			comments_div.style.display = "none";
+		}
+		const comments_address = this.state.posts[index].comments;
+		if (
+			comments_address.length != 0 &&
+			typeof comments_address[0] == "string"
+		) {
+			const comments = await (async function (comments_address) {
+				let new_comments = [];
+				for (let i = 0; i < comments_address.length; i++) {
+					const Comment = new web3.eth.Contract(
+						JSON.parse(PostContract.interface),
+						comments_address[i]
+					);
+					const currentComment = {
+						imageUrl: await Comment.methods.image_hash().call(),
+						author: await Comment.methods.author().call(),
+						content: await Comment.methods.content().call(),
+					};
+					new_comments.push(currentComment);
+				}
+				return new_comments;
+			})(comments_address);
+			let new_posts = this.state.posts;
+			new_posts[index].comments = comments;
+			this.setState({ posts: new_posts });
+		}
+	}
+
+	async postComment(event) {
+		event.persist();
+		event.preventDefault();
+		accounts = await web3.eth.getAccounts();
+		const parent_index = event.target.getAttribute("data-index");
+		console.log(parent_index);
+		if (metamask_provider == false || accounts.length == 0) {
+			this.setState({ metamask: false });
+		} else {
+			this.setState({ metamask: true, uploading: true });
+			ipfs.files.add(this.state.buffer, async (error, result) => {
+				if (error) {
+					console.error(error);
+					return;
+				}
+				const parent_address = await PostFactory.methods
+					.deployedPosts(parent_index)
+					.call();
+				await PostFactory.methods
+					.createComment(
+						parent_address,
+						result[0].hash,
+						this.state.content
+					)
+					.send({ from: accounts[0] });
+				const parent_post = new web3.eth.Contract(
+					JSON.parse(PostContract.interface),
+					parent_address
+				);
+				const comments_address = await parent_post.methods
+					.getComments()
+					.call();
+				let new_posts = this.state.posts;
+				const comments = await (async function (comments_address) {
+					let new_comments = [];
+					for (let i = 0; i < comments_address.length; i++) {
+						const Comment = new web3.eth.Contract(
+							JSON.parse(PostContract.interface),
+							comments_address[i]
+						);
+						const currentComment = {
+							imageUrl: await Comment.methods.image_hash().call(),
+							author: await Comment.methods.author().call(),
+							content: await Comment.methods.content().call(),
+						};
+						new_comments.push(currentComment);
+					}
+					return new_comments;
+				})(comments_address);
+				new_posts[parent_index].comments = comments;
+				this.setState({
+					posts: new_posts,
+					content: "",
+					uploading: false,
+				});
+				const file_uploader = document.getElementById("file_upload_2");
+				file_uploader.value = "";
+			});
+		}
+	}
+
 	async onSubmit(event) {
 		event.preventDefault();
 		accounts = await web3.eth.getAccounts();
@@ -159,6 +259,7 @@ class PostIndex extends Component {
 							imageUrl: await Post.methods.image_hash().call(),
 							author: await Post.methods.author().call(),
 							content: await Post.methods.content().call(),
+							comments: await Post.methods.getComments().call(),
 						};
 						new_posts.push(currentPost);
 					}
@@ -563,25 +664,201 @@ class PostIndex extends Component {
 										margin: "0 auto 20px",
 									}}
 								></hr>
-								<button
-									className="btn btn-outline-dark"
-									style={{
-										width: "fit-content",
-										margin: "0 40px 20px",
-										padding: "10px",
-									}}
-									onClick={this.donate}
-									data-index={index}
-								>
-									<img
-										src="https://cdn-icons-png.flaticon.com/512/1777/1777889.png"
+								<div>
+									<button
+										className="btn btn-outline-dark"
 										style={{
-											width: "28px",
-											margin: "auto 5px",
+											width: "fit-content",
+											margin: "0 40px 20px",
+											padding: "10px",
 										}}
-									/>
-									Tip this post
-								</button>
+										onClick={this.donate}
+										data-index={
+											this.state.posts.length - 1 - index
+										}
+									>
+										<img
+											src="https://cdn-icons-png.flaticon.com/512/1777/1777889.png"
+											style={{
+												width: "28px",
+												margin: "auto 5px",
+											}}
+										/>
+										Tip this post
+									</button>
+									<button
+										className="btn btn-outline-primary"
+										style={{
+											width: "fit-content",
+											margin: "0 40px 20px",
+											padding: "10px",
+											float: "right",
+										}}
+										data-index={
+											this.state.posts.length - 1 - index
+										}
+										onClick={this.commentHide}
+									>
+										<i
+											className="fa fa-comments"
+											style={{ margin: "0 5px" }}
+										></i>{" "}
+										Comments
+									</button>
+								</div>
+								<div
+									id={
+										"comments" +
+										(this.state.posts.length - index - 1)
+									}
+									style={{ margin: "10px", display: "none" }}
+								>
+									<form
+										onSubmit={this.postComment}
+										style={{
+											margin: "20px auto",
+											textAlign: "center",
+											width: "550px",
+											borderRadius: "5px",
+											border: "1px solid gray",
+										}}
+										data-index={
+											this.state.posts.length - 1 - index
+										}
+									>
+										<textarea
+											placeholder="Comment on this post..."
+											style={{
+												width: "100%",
+												height: "100px",
+												padding: "12px",
+												border: "0px solid black",
+											}}
+											onChange={this.readContent}
+											value={this.state.content}
+										/>
+										<br></br>
+										<input
+											type="file"
+											onChange={this.captureFile}
+											style={{ margin: "10px" }}
+											id="file_upload_2"
+										/>
+										<button
+											type="submit"
+											className="btn btn-primary"
+											style={{ margin: "10px" }}
+										>
+											{this.state.uploading && (
+												<div style={{ margin: "5px" }}>
+													<span
+														style={{
+															float: "left",
+														}}
+													>
+														<img
+															src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
+															style={{
+																height: "28px",
+																margin: "0 15px 0 0",
+															}}
+														/>
+													</span>
+													<span
+														style={{
+															float: "right",
+														}}
+													>
+														<div>
+															Uploading...
+															<br></br>It might
+															take upto 10 mins!!
+														</div>
+													</span>
+												</div>
+											)}
+											{!this.state.uploading && "Submit"}
+										</button>
+									</form>
+									{post.comments
+										.slice(0)
+										.reverse()
+										.map((comment, comment_index) => (
+											<div
+												className="card"
+												style={{
+													margin: "20px auto 20px",
+													width: "550px",
+													height: "fit-content",
+												}}
+												key={
+													"comments_" + comment_index
+												}
+											>
+												<p
+													className="card-header"
+													style={{
+														fontWeight: "500",
+														fontSize: "13px",
+													}}
+												>
+													<img
+														src={`https://identicon-api.herokuapp.com/${comment.author}/20?format=png`}
+														style={{
+															margin: "5px 20px 5px 5px",
+															borderRadius: "50%",
+															background: "white",
+														}}
+														key={
+															"comments_" +
+															comment_index
+														}
+													/>
+													{comment.author}
+												</p>
+												<div
+													className="card-img-top img-fluid"
+													style={{
+														maxWidth: "90%",
+														height: "auto",
+														overflow: "hidden",
+														display: "flex",
+														margin: "0 auto",
+														padding: "10px",
+													}}
+												>
+													<img
+														src={`https://ipfs.io/ipfs/${comment.imageUrl}`}
+														className="card-img-top img-fluid"
+														style={{
+															objectFit:
+																"contain",
+															borderRadius:
+																"25px",
+															height: "auto",
+															width: "auto",
+															margin: "0 auto",
+															maxHeight: "250px",
+														}}
+													/>
+												</div>
+												<div
+													className="card-body"
+													style={{ height: "auto" }}
+												>
+													<p
+														className="card-text"
+														style={{
+															fontSize: "16px",
+															margin: "0px",
+														}}
+													>
+														{comment.content}
+													</p>
+												</div>
+											</div>
+										))}
+								</div>
 							</div>
 						))}
 				</div>

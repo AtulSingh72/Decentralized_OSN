@@ -16,6 +16,16 @@ contract PostFactory {
     function setMinContribution(uint256 contribution) public {
         min_contribution = contribution;
     }
+
+    function createComment(
+        address parent,
+        string image_hash,
+        string content
+    ) public {
+        address comment = new Post(image_hash, msg.sender, content);
+        Post parent_post = Post(parent);
+        parent_post.addComment(comment);
+    }
 }
 
 contract Post {
@@ -23,6 +33,7 @@ contract Post {
     string public content;
     address public author;
     PostFactory factory;
+    address[] comments;
 
     function Post(
         string hash,
@@ -46,5 +57,13 @@ contract Post {
     function receiveContribution() public payable {
         require(factory.min_contribution() <= msg.value);
         author.transfer(this.balance);
+    }
+
+    function addComment(address comment) public {
+        comments.push(comment);
+    }
+
+    function getComments() public view returns (address[]) {
+        return comments;
     }
 }
