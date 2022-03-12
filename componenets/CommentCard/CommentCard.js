@@ -1,0 +1,71 @@
+import React from "react";
+
+const commentCard = (props) => {
+	return (
+		<div
+			className="card"
+			style={{
+				margin: "20px auto 20px",
+				width: "550px",
+				height: "fit-content",
+			}}
+			key={"comments_" + props.comment_index}
+		>
+			<p
+				className="card-header"
+				style={{
+					fontWeight: "500",
+					fontSize: "13px",
+				}}
+			>
+				<img
+					src={`https://identicon-api.herokuapp.com/${props.comment.author}/20?format=png`}
+					style={{
+						margin: "5px 20px 5px 5px",
+						borderRadius: "50%",
+						background: "white",
+					}}
+					key={"comments_" + props.comment_index}
+				/>
+				{props.comment.author}
+			</p>
+			<div
+				className="card-img-top img-fluid"
+				style={{
+					maxWidth: "90%",
+					height: "auto",
+					overflow: "hidden",
+					display: "flex",
+					margin: "0 auto",
+					padding: "10px",
+				}}
+			>
+				<img
+					src={`https://ipfs.io/ipfs/${props.comment.imageUrl}`}
+					className="card-img-top img-fluid"
+					style={{
+						objectFit: "contain",
+						borderRadius: "25px",
+						height: "auto",
+						width: "auto",
+						margin: "0 auto",
+						maxHeight: "250px",
+					}}
+				/>
+			</div>
+			<div className="card-body" style={{ height: "auto" }}>
+				<p
+					className="card-text"
+					style={{
+						fontSize: "16px",
+						margin: "0px",
+					}}
+				>
+					{props.comment.content}
+				</p>
+			</div>
+		</div>
+	);
+};
+
+export default commentCard;

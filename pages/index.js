@@ -4,6 +4,12 @@ import PostContract from "../ethereum/build/Post.json";
 import ipfs from "../ethereum/ipfs";
 import { web3, metamask_provider } from "../ethereum/web3";
 import Head from "next/head";
+import TweetForm from "../componenets/TweetForm/TweetForm";
+import TweetCard from "../componenets/TweetCard/TweetCard";
+import LoadingCard from "../componenets/LoadingCard/LoadingCard";
+import ZoomedImage from "../componenets/ZoomedImage/ZoomedImage";
+import MetamaskCard from "../componenets/MetamaskCard/MetamaskCard";
+import DonateCard from "../componenets/DonateCard/DonateCard";
 
 let accounts = [];
 
@@ -25,16 +31,6 @@ class PostIndex extends Component {
 			donating: false,
 			disable_transact_okay: true,
 		};
-		this.captureFile = this.captureFile.bind(this);
-		this.onSubmit = this.onSubmit.bind(this);
-		this.imageZoom = this.imageZoom.bind(this);
-		this.readContent = this.readContent.bind(this);
-		this.takeback = this.takeback.bind(this);
-		this.transact = this.transact.bind(this);
-		this.donate = this.donate.bind(this);
-		this.isdonatebuttonon = this.isdonatebuttonon.bind(this);
-		this.postComment = this.postComment.bind(this);
-		this.commentHide = this.commentHide.bind(this);
 	}
 
 	async componentDidMount() {
@@ -64,7 +60,7 @@ class PostIndex extends Component {
 		return { posts: new_posts };
 	}
 
-	isdonatebuttonon(event) {
+	isdonatebuttonon = (event) => {
 		event.preventDefault();
 		let new_value = true;
 		if (event.target.value >= this.state.min_tip) {
@@ -74,9 +70,9 @@ class PostIndex extends Component {
 			value: event.target.value,
 			disable_transact_okay: new_value,
 		});
-	}
+	};
 
-	captureFile(event) {
+	captureFile = (event) => {
 		event.preventDefault();
 		const file = event.target.files[0];
 		const reader = new window.FileReader();
@@ -84,14 +80,14 @@ class PostIndex extends Component {
 		reader.onloadend = () => {
 			this.setState({ buffer: Buffer(reader.result) });
 		};
-	}
+	};
 
-	takeback(event) {
+	takeback = (event) => {
 		event.preventDefault();
 		this.setState({ metamask: true, is_donate: false });
-	}
+	};
 
-	async donate(event) {
+	donate = async (event) => {
 		event.persist();
 		event.preventDefault();
 		console.log(event.target);
@@ -102,15 +98,15 @@ class PostIndex extends Component {
 			min_tip: tip,
 			tip_post_key: event.target.getAttribute("data-index"),
 		});
-	}
+	};
 
-	async transact(event) {
+	transact = async (event) => {
 		event.persist();
 		event.preventDefault();
 		accounts = await web3.eth.getAccounts();
 		console.log(accounts);
 		if (metamask_provider == false || accounts.length == 0) {
-			this.setState({ metamask: false });
+			this.setState({ metamask: false, is_donate: false });
 		} else {
 			this.setState({ metamask: true, donating: true });
 			const index = this.state.tip_post_key;
@@ -133,9 +129,9 @@ class PostIndex extends Component {
 				donating: false,
 			});
 		}
-	}
+	};
 
-	async commentHide(event) {
+	commentHide = async (event) => {
 		event.preventDefault();
 		const index = event.target.getAttribute("data-index");
 		var comments_div = document.getElementById("comments" + index);
@@ -169,9 +165,9 @@ class PostIndex extends Component {
 			new_posts[index].comments = comments;
 			this.setState({ posts: new_posts });
 		}
-	}
+	};
 
-	async postComment(event) {
+	postComment = async (event) => {
 		event.persist();
 		event.preventDefault();
 		accounts = await web3.eth.getAccounts();
@@ -230,9 +226,9 @@ class PostIndex extends Component {
 				file_uploader.value = "";
 			});
 		}
-	}
+	};
 
-	async onSubmit(event) {
+	onSubmit = async (event) => {
 		event.preventDefault();
 		accounts = await web3.eth.getAccounts();
 		if (metamask_provider == false || accounts.length == 0) {
@@ -274,21 +270,21 @@ class PostIndex extends Component {
 				file_uploader.value = "";
 			});
 		}
-	}
+	};
 
-	async imageZoom(event) {
+	imageZoom = async (event) => {
 		event.preventDefault();
 		if (this.state.zoomed !== null) {
 			this.setState({ zoomed: null });
 		} else {
 			this.setState({ zoomed: event.target.getAttribute("src") });
 		}
-	}
+	};
 
-	readContent(event) {
+	readContent = (event) => {
 		event.preventDefault();
 		this.setState({ content: event.target.value });
-	}
+	};
 
 	render() {
 		return (
@@ -318,548 +314,50 @@ class PostIndex extends Component {
 					<script src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0"></script>
 				</Head>
 				{this.state.is_donate == true && (
-					<div
-						style={{
-							position: "fixed",
-							zIndex: "1",
-							width: "100%",
-							height: "100%",
-							textAlign: "center",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							left: "0",
-							top: "0",
-							background: "rgba(0, 0, 0, 0.8)",
-						}}
-					>
-						<div
-							style={{
-								width: "50%",
-								height: "50%",
-								background: "white",
-								borderRadius: "70px",
-								padding: "25px",
-							}}
-						>
-							<img
-								src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.giphy.com%2Fmedia%2FMVgBbtMBGQTi6og4mF%2Fgiphy.gif&f=1&nofb=1"
-								style={{
-									width: "200px",
-									margin: "0px 20px 10px",
-								}}
-							/>
-							<h2 style={{ margin: "5px" }}>
-								Choose your TIP amount
-							</h2>
-							<div
-								className="input-group input-group-lg flex-nowrap"
-								style={{
-									width: "60%",
-									margin: "30px auto 10px",
-								}}
-							>
-								<input
-									className="form-control"
-									type="number"
-									placeholder={`Minimum TIP Amount is ${this.state.min_tip} ETH`}
-									min="10"
-									onChange={this.isdonatebuttonon}
-								/>
-								<span
-									className="input-group-text"
-									id="addon-wrapping"
-								>
-									ETH
-								</span>
-							</div>
-							<button
-								onClick={this.takeback}
-								className="btn btn-info"
-								style={{ margin: "20px 40px" }}
-							>
-								<i className="fa fa-close"></i> | Naah! Take me
-								back to feeds
-							</button>
-							<button
-								className="btn btn-warning"
-								style={{ margin: "20px 40px" }}
-								id="donate-ok"
-								onClick={this.transact}
-								disabled={this.state.disable_transact_okay}
-							>
-								<div>
-									{this.state.donating == true && (
-										<div>
-											<img
-												src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
-												style={{
-													height: "28px",
-													margin: "0 15px 0 0",
-												}}
-											/>
-											| Transaction is being performed
-										</div>
-									)}
-									{this.state.donating == false && (
-										<div>
-											<i className="fa fa-check"></i>|
-											Done! Send this TIP amount
-										</div>
-									)}
-								</div>
-							</button>
-						</div>
-					</div>
+					<DonateCard
+						min_tip={this.state.min_tip}
+						isdonatebuttonon={this.isdonatebuttonon}
+						takeback={this.takeback}
+						transact={this.transact}
+						disable_transact_okay={this.state.disable_transact_okay}
+						donating={this.state.donating}
+					/>
 				)}
 				{this.state.metamask == false && (
-					<div
-						style={{
-							position: "fixed",
-							zIndex: "1",
-							width: "100%",
-							height: "100%",
-							textAlign: "center",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							left: "0",
-							top: "0",
-							background: "rgba(0, 0, 0, 0.8)",
-						}}
-					>
-						<div
-							style={{
-								width: "50%",
-								height: "50%",
-								background: "white",
-								borderRadius: "70px",
-								padding: "25px",
-							}}
-						>
-							<img
-								src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fyt3.ggpht.com%2Fa-%2FAAuE7mC1z-HXEKxL4YhAhc7WDHWA6Rnly1I592T5ag%3Ds900-mo-c-c0xffffffff-rj-k-no&f=1&nofb=1"
-								style={{
-									width: "200px",
-									margin: "0px 20px 10px",
-								}}
-							/>
-							<h2 style={{ margin: "5px" }}>OOPS!</h2>
-							<h5 style={{ margin: "10px" }}>
-								Either the MetaMask extension is not installed
-								or you aren't logged into metamask.
-							</h5>
-							<button
-								onClick={this.takeback}
-								className="btn btn-info"
-								style={{ margin: "20px 40px" }}
-							>
-								<i className="fa fa-arrow-left"></i> | Naah!
-								Take me back to feeds
-							</button>
-							<a
-								href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn"
-								className="btn btn-warning"
-								target={"_blank"}
-								style={{ margin: "20px 40px" }}
-							>
-								<i className="fa fa-chrome"></i> | Get MetaMask
-								Extenstion
-							</a>
-						</div>
-					</div>
+					<MetamaskCard takeback={this.takeback} />
 				)}
-				{this.state.loading && (
-					<div
-						style={{
-							position: "fixed",
-							zIndex: "1",
-							width: "100%",
-							height: "100%",
-							textAlign: "center",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							left: "0",
-							top: "0",
-							background: "rgba(0, 0, 0, 0.8)",
-						}}
-					>
-						<div
-							style={{
-								width: "40%",
-								height: "40%",
-								background: "white",
-								borderRadius: "70px",
-								padding: "25px",
-							}}
-						>
-							<img
-								src="https://c.tenor.com/UTxZPwKlNNIAAAAi/ethereum-ethereum-crypto.gif"
-								style={{
-									width: "200px",
-									margin: "0px 20px 40px",
-								}}
-							/>
-							<h2 style={{ margin: "20px" }}>
-								Welcome to your Decentralized World!!
-							</h2>
-							<h5 style={{ margin: "10px" }}>
-								Hold tight while we setup the contents for you
-							</h5>
-						</div>
-					</div>
-				)}
-				<form
-					onSubmit={this.onSubmit}
-					style={{
-						margin: "20px auto",
-						textAlign: "center",
-						width: "650px",
-						borderRadius: "5px",
-						border: "1px solid gray",
-					}}
-				>
-					<textarea
-						placeholder="Let's tweet something..."
-						style={{
-							width: "100%",
-							height: "150px",
-							padding: "12px",
-							border: "0px solid black",
-						}}
-						onChange={this.readContent}
-						value={this.state.content}
-					/>
-					<br></br>
-					<input
-						type="file"
-						onChange={this.captureFile}
-						style={{ margin: "10px" }}
-						id="file_upload"
-					/>
-					<button
-						type="submit"
-						className="btn btn-primary"
-						style={{ margin: "10px" }}
-					>
-						{this.state.uploading && (
-							<div style={{ margin: "5px" }}>
-								<span style={{ float: "left" }}>
-									<img
-										src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
-										style={{
-											height: "28px",
-											margin: "0 15px 0 0",
-										}}
-									/>
-								</span>
-								<span style={{ float: "right" }}>
-									<div>
-										Uploading...<br></br>It might take upto
-										10 mins!!
-									</div>
-								</span>
-							</div>
-						)}
-						{!this.state.uploading && "Submit"}
-					</button>
-				</form>
+				{this.state.loading && <LoadingCard />}
 				{this.state.zoomed !== null && (
-					<div
-						style={{
-							position: "fixed",
-							zIndex: "1",
-							width: "100%",
-							height: "100%",
-							textAlign: "center",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							left: "0",
-							top: "0",
-							background: "rgba(0, 0, 0, 0.8)",
-						}}
-					>
-						<img
-							src={this.state.zoomed}
-							onClick={this.imageZoom}
-							style={{
-								maxWidth: "90%",
-								maxHeight: "90%",
-								cursor: "zoom-out",
-							}}
-						/>
-					</div>
+					<ZoomedImage
+						zoomed={this.state.zoomed}
+						imageZoom={this.imageZoom}
+					/>
 				)}
+				<TweetForm
+					content={this.state.content}
+					uploading={this.state.uploading}
+					submit={this.onSubmit}
+					readContent={this.readContent}
+					captureFile={this.captureFile}
+				/>
 				<div>
 					{this.state.posts
 						.slice(0)
 						.reverse()
 						.map((post, index) => (
-							<div
-								className="card"
-								style={{
-									margin: "20px auto 20px",
-									width: "650px",
-									height: "fit-content",
-								}}
-								key={index}
-							>
-								<h6 className="card-header">
-									<img
-										src={`https://identicon-api.herokuapp.com/${post.author}/40?format=png`}
-										style={{
-											margin: "5px 20px 5px 5px",
-											borderRadius: "50%",
-											background: "white",
-										}}
-										key={index}
-									/>
-									{post.author}
-								</h6>
-								<div
-									className="card-img-top img-fluid"
-									style={{
-										maxWidth: "90%",
-										height: "auto",
-										overflow: "hidden",
-										display: "flex",
-										margin: "0 auto",
-										padding: "20px",
-									}}
-								>
-									<img
-										src={`https://ipfs.io/ipfs/${post.imageUrl}`}
-										className="card-img-top img-fluid"
-										style={{
-											objectFit: "contain",
-											cursor: "zoom-in",
-											borderRadius: "25px",
-											height: "auto",
-											width: "auto",
-											margin: "0 auto",
-											maxHeight: "500px",
-										}}
-										onClick={this.imageZoom}
-									/>
-								</div>
-								<div
-									className="card-body"
-									style={{ height: "auto" }}
-								>
-									<p
-										className="card-text"
-										style={{
-											fontSize: "22px",
-											margin: "20px",
-										}}
-									>
-										{post.content}
-									</p>
-								</div>
-								<hr
-									style={{
-										width: "80%",
-										margin: "0 auto 20px",
-									}}
-								></hr>
-								<div>
-									<button
-										className="btn btn-outline-dark"
-										style={{
-											width: "fit-content",
-											margin: "0 40px 20px",
-											padding: "10px",
-										}}
-										onClick={this.donate}
-										data-index={
-											this.state.posts.length - 1 - index
-										}
-									>
-										<img
-											src="https://cdn-icons-png.flaticon.com/512/1777/1777889.png"
-											style={{
-												width: "28px",
-												margin: "auto 5px",
-											}}
-										/>
-										Tip this post
-									</button>
-									<button
-										className="btn btn-outline-primary"
-										style={{
-											width: "fit-content",
-											margin: "0 40px 20px",
-											padding: "10px",
-											float: "right",
-										}}
-										data-index={
-											this.state.posts.length - 1 - index
-										}
-										onClick={this.commentHide}
-									>
-										<i
-											className="fa fa-comments"
-											style={{ margin: "0 5px" }}
-										></i>{" "}
-										Comments
-									</button>
-								</div>
-								<div
-									id={
-										"comments" +
-										(this.state.posts.length - index - 1)
-									}
-									style={{ margin: "10px", display: "none" }}
-								>
-									<form
-										onSubmit={this.postComment}
-										style={{
-											margin: "20px auto",
-											textAlign: "center",
-											width: "550px",
-											borderRadius: "5px",
-											border: "1px solid gray",
-										}}
-										data-index={
-											this.state.posts.length - 1 - index
-										}
-									>
-										<textarea
-											placeholder="Comment on this post..."
-											style={{
-												width: "100%",
-												height: "100px",
-												padding: "12px",
-												border: "0px solid black",
-											}}
-											onChange={this.readContent}
-											value={this.state.content}
-										/>
-										<br></br>
-										<input
-											type="file"
-											onChange={this.captureFile}
-											style={{ margin: "10px" }}
-											id="file_upload_2"
-										/>
-										<button
-											type="submit"
-											className="btn btn-primary"
-											style={{ margin: "10px" }}
-										>
-											{this.state.uploading && (
-												<div style={{ margin: "5px" }}>
-													<span
-														style={{
-															float: "left",
-														}}
-													>
-														<img
-															src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
-															style={{
-																height: "28px",
-																margin: "0 15px 0 0",
-															}}
-														/>
-													</span>
-													<span
-														style={{
-															float: "right",
-														}}
-													>
-														<div>
-															Uploading...
-															<br></br>It might
-															take upto 10 mins!!
-														</div>
-													</span>
-												</div>
-											)}
-											{!this.state.uploading && "Submit"}
-										</button>
-									</form>
-									{post.comments
-										.slice(0)
-										.reverse()
-										.map((comment, comment_index) => (
-											<div
-												className="card"
-												style={{
-													margin: "20px auto 20px",
-													width: "550px",
-													height: "fit-content",
-												}}
-												key={
-													"comments_" + comment_index
-												}
-											>
-												<p
-													className="card-header"
-													style={{
-														fontWeight: "500",
-														fontSize: "13px",
-													}}
-												>
-													<img
-														src={`https://identicon-api.herokuapp.com/${comment.author}/20?format=png`}
-														style={{
-															margin: "5px 20px 5px 5px",
-															borderRadius: "50%",
-															background: "white",
-														}}
-														key={
-															"comments_" +
-															comment_index
-														}
-													/>
-													{comment.author}
-												</p>
-												<div
-													className="card-img-top img-fluid"
-													style={{
-														maxWidth: "90%",
-														height: "auto",
-														overflow: "hidden",
-														display: "flex",
-														margin: "0 auto",
-														padding: "10px",
-													}}
-												>
-													<img
-														src={`https://ipfs.io/ipfs/${comment.imageUrl}`}
-														className="card-img-top img-fluid"
-														style={{
-															objectFit:
-																"contain",
-															borderRadius:
-																"25px",
-															height: "auto",
-															width: "auto",
-															margin: "0 auto",
-															maxHeight: "250px",
-														}}
-													/>
-												</div>
-												<div
-													className="card-body"
-													style={{ height: "auto" }}
-												>
-													<p
-														className="card-text"
-														style={{
-															fontSize: "16px",
-															margin: "0px",
-														}}
-													>
-														{comment.content}
-													</p>
-												</div>
-											</div>
-										))}
-								</div>
-							</div>
+							<TweetCard
+								postLength={this.state.posts.length}
+								post={post}
+								index={index}
+								imageZoom={this.imageZoom}
+								donate={this.donate}
+								commentHide={this.commentHide}
+								postComment={this.postComment}
+								readContent={this.readContent}
+								content={this.state.content}
+								captureFile={this.captureFile}
+								uploading={this.state.uploading}
+							/>
 						))}
 				</div>
 			</div>
