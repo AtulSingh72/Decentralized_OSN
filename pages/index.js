@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Link from "next/link";
 import PostFactory from "../ethereum/factory";
 import PostContract from "../ethereum/build/Post.json";
 import ipfs from "../ethereum/ipfs";

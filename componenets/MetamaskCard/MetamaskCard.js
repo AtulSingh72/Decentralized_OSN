@@ -1,31 +1,11 @@
 import React from "react";
+import Backdrop from "../Overlay/Backdrop/Backdrop";
+import Modal from "../Overlay/Modal/Modal";
 
 const metamaskCard = (props) => {
 	return (
-		<div
-			style={{
-				position: "fixed",
-				zIndex: "1",
-				width: "100%",
-				height: "100%",
-				textAlign: "center",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				left: "0",
-				top: "0",
-				background: "rgba(0, 0, 0, 0.8)",
-			}}
-		>
-			<div
-				style={{
-					width: "50%",
-					height: "50%",
-					background: "white",
-					borderRadius: "70px",
-					padding: "25px",
-				}}
-			>
+		<Backdrop takeback={props.takeback}>
+			<Modal>
 				<img
 					src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fyt3.ggpht.com%2Fa-%2FAAuE7mC1z-HXEKxL4YhAhc7WDHWA6Rnly1I592T5ag%3Ds900-mo-c-c0xffffffff-rj-k-no&f=1&nofb=1"
 					style={{
@@ -54,8 +34,8 @@ const metamaskCard = (props) => {
 				>
 					<i className="fa fa-chrome"></i> | Get MetaMask Extenstion
 				</a>
-			</div>
-		</div>
+			</Modal>
+		</Backdrop>
 	);
 };
 

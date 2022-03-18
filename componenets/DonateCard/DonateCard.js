@@ -1,31 +1,11 @@
 import React from "react";
+import Backdrop from "../Overlay/Backdrop/Backdrop";
+import Modal from "../Overlay/Modal/Modal";
 
 const donateCard = (props) => {
 	return (
-		<div
-			style={{
-				position: "fixed",
-				zIndex: "1",
-				width: "100%",
-				height: "100%",
-				textAlign: "center",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				left: "0",
-				top: "0",
-				background: "rgba(0, 0, 0, 0.8)",
-			}}
-		>
-			<div
-				style={{
-					width: "50%",
-					height: "50%",
-					background: "white",
-					borderRadius: "70px",
-					padding: "25px",
-				}}
-			>
+		<Backdrop takeback={props.takeback}>
+			<Modal>
 				<img
 					src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.giphy.com%2Fmedia%2FMVgBbtMBGQTi6og4mF%2Fgiphy.gif&f=1&nofb=1"
 					style={{
@@ -88,8 +68,8 @@ const donateCard = (props) => {
 						)}
 					</div>
 				</button>
-			</div>
-		</div>
+			</Modal>
+		</Backdrop>
 	);
 };
 
