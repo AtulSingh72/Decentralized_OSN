@@ -10,7 +10,7 @@ import LoadingCard from "../componenets/LoadingCard/LoadingCard";
 import ZoomedImage from "../componenets/ZoomedImage/ZoomedImage";
 import MetamaskCard from "../componenets/MetamaskCard/MetamaskCard";
 import DonateCard from "../componenets/DonateCard/DonateCard";
-import Link from "next/link";
+import Navbar from "../componenets/Navbar/Navbar";
 
 let accounts = [];
 
@@ -298,7 +298,7 @@ class PostIndex extends Component {
 
 	render() {
 		return (
-			<div className="container">
+			<div className="row" style={{ width: "100%", height: "100%" }}>
 				<Head>
 					<title>DOSN</title>
 					<link
@@ -323,52 +323,63 @@ class PostIndex extends Component {
 					></script>
 					<script src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0"></script>
 				</Head>
-				{this.state.is_donate == true && (
-					<DonateCard
-						min_tip={this.state.min_tip}
-						isdonatebuttonon={this.isdonatebuttonon}
-						takeback={this.takeback}
-						transact={this.transact}
-						disable_transact_okay={this.state.disable_transact_okay}
-						donating={this.state.donating}
+				<div
+					className="col-3"
+					style={{ position: "relative", textAlign: "right" }}
+				>
+					<Navbar />
+				</div>
+				<div className="container col-9">
+					{this.state.is_donate == true && (
+						<DonateCard
+							min_tip={this.state.min_tip}
+							isdonatebuttonon={this.isdonatebuttonon}
+							takeback={this.takeback}
+							transact={this.transact}
+							disable_transact_okay={
+								this.state.disable_transact_okay
+							}
+							donating={this.state.donating}
+						/>
+					)}
+					{this.state.metamask == false && (
+						<MetamaskCard takeback={this.takeback} />
+					)}
+					{this.state.loading && <LoadingCard />}
+					{this.state.zoomed !== null && (
+						<ZoomedImage
+							zoomed={this.state.zoomed}
+							imageZoom={this.imageZoom}
+						/>
+					)}
+					<TweetForm
+						content={this.state.content}
+						uploading={this.state.uploading}
+						submit={this.onSubmit}
+						readContent={this.readContent}
+						captureFile={this.captureFile}
 					/>
-				)}
-				{this.state.metamask == false && (
-					<MetamaskCard takeback={this.takeback} />
-				)}
-				{this.state.loading && <LoadingCard />}
-				{this.state.zoomed !== null && (
-					<ZoomedImage
-						zoomed={this.state.zoomed}
-						imageZoom={this.imageZoom}
-					/>
-				)}
-				<TweetForm
-					content={this.state.content}
-					uploading={this.state.uploading}
-					submit={this.onSubmit}
-					readContent={this.readContent}
-					captureFile={this.captureFile}
-				/>
-				<div>
-					{this.state.posts
-						.slice(0)
-						.reverse()
-						.map((post, index) => (
-							<TweetCard
-								postLength={this.state.posts.length}
-								post={post}
-								index={index}
-								imageZoom={this.imageZoom}
-								donate={this.donate}
-								commentHide={this.commentHide}
-								postComment={this.postComment}
-								readContent={this.readContent}
-								content={this.state.content}
-								captureFile={this.captureFile}
-								uploading={this.state.uploading}
-							/>
-						))}
+					<div>
+						{this.state.posts
+							.slice(0)
+							.reverse()
+							.map((post, index) => (
+								<TweetCard
+									postLength={this.state.posts.length}
+									post={post}
+									index={index}
+									imageZoom={this.imageZoom}
+									donate={this.donate}
+									commentHide={this.commentHide}
+									postComment={this.postComment}
+									readContent={this.readContent}
+									content={this.state.content}
+									captureFile={this.captureFile}
+									uploading={this.state.uploading}
+									key={index}
+								/>
+							))}
+					</div>
 				</div>
 			</div>
 		);

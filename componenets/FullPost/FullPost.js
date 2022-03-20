@@ -154,7 +154,7 @@ const FullPost = (props) => {
 			<style jsx>
 				{`
 					.card {
-						max-width: 800px;
+						max-width: 1000px;
 						margin: 40px auto;
 					}
 					.content {

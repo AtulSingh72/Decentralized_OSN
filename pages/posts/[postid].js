@@ -9,6 +9,7 @@ import Head from "next/head";
 import FullPost from "../../componenets/FullPost/FullPost";
 import DonateCard from "../../componenets/DonateCard/DonateCard";
 import MetamaskCard from "../../componenets/MetamaskCard/MetamaskCard";
+import Navbar from "../../componenets/Navbar/Navbar";
 
 let accounts = [];
 
@@ -248,7 +249,7 @@ class Post extends Component {
 
 	render() {
 		return (
-			<div style={{ padding: "20px" }}>
+			<div className="row">
 				<Head>
 					<title>DOSN</title>
 					<link
@@ -273,41 +274,51 @@ class Post extends Component {
 					></script>
 					<script src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0"></script>
 				</Head>
-				{this.state.is_donate == true && (
-					<DonateCard
-						min_tip={this.state.min_tip}
-						isdonatebuttonon={this.isdonatebuttonon}
-						takeback={this.takeback}
-						transact={this.transact}
-						disable_transact_okay={this.state.disable_transact_okay}
-						donating={this.state.donating}
-					/>
-				)}
-				{this.state.metamask == false && (
-					<MetamaskCard takeback={this.takeback} />
-				)}
-				{this.state.zoomed !== null && (
-					<ZoomedImage
-						zoomed={this.state.zoomed}
+				<div
+					className="col-3"
+					style={{ position: "relative", textAlign: "right" }}
+				>
+					<Navbar />
+				</div>
+				<div className="container col-9">
+					{this.state.is_donate == true && (
+						<DonateCard
+							min_tip={this.state.min_tip}
+							isdonatebuttonon={this.isdonatebuttonon}
+							takeback={this.takeback}
+							transact={this.transact}
+							disable_transact_okay={
+								this.state.disable_transact_okay
+							}
+							donating={this.state.donating}
+						/>
+					)}
+					{this.state.metamask == false && (
+						<MetamaskCard takeback={this.takeback} />
+					)}
+					{this.state.zoomed !== null && (
+						<ZoomedImage
+							zoomed={this.state.zoomed}
+							imageZoom={this.imageZoom}
+						/>
+					)}
+					<FullPost
+						address={this.state.address}
+						content={this.state.content}
+						author={this.state.author}
+						imageUrl={this.state.imageUrl}
+						comments={this.state.comments}
+						hideComments={this.state.hideComments}
+						toggleCommentView={this.toggleCommentView}
 						imageZoom={this.imageZoom}
+						donate={this.donate}
+						comment_content={this.state.comment_content}
+						postComment={this.postComment}
+						readContent={this.readContent}
+						captureFile={this.captureFile}
+						uploading={this.state.uploading}
 					/>
-				)}
-				<FullPost
-					address={this.state.address}
-					content={this.state.content}
-					author={this.state.author}
-					imageUrl={this.state.imageUrl}
-					comments={this.state.comments}
-					hideComments={this.state.hideComments}
-					toggleCommentView={this.toggleCommentView}
-					imageZoom={this.imageZoom}
-					donate={this.donate}
-					comment_content={this.state.comment_content}
-					postComment={this.postComment}
-					readContent={this.readContent}
-					captureFile={this.captureFile}
-					uploading={this.state.uploading}
-				/>
+				</div>
 			</div>
 		);
 	}

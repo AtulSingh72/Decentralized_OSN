@@ -11,7 +11,7 @@ const tweetCard = (props) => {
 			className="card"
 			style={{
 				margin: "20px auto 20px",
-				width: "650px",
+				maxWidth: "1000px",
 				height: "fit-content",
 			}}
 			key={props.index}

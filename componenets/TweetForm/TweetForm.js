@@ -7,7 +7,7 @@ const tweetForm = (props) => {
 			style={{
 				margin: "20px auto",
 				textAlign: "center",
-				width: "650px",
+				maxWidth: "1000px",
 				borderRadius: "5px",
 				border: "1px solid gray",
 			}}
