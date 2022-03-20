@@ -1,6 +1,8 @@
 import React from "react";
+import { useRouter } from "next/router";
 
 const commentCard = (props) => {
+	const router = useRouter();
 	return (
 		<div
 			className="card"
@@ -10,6 +12,9 @@ const commentCard = (props) => {
 				height: "fit-content",
 			}}
 			key={"comments_" + props.comment_index}
+			onClick={(event) => {
+				router.push(`/posts/${props.comment.address.substring(2)}`);
+			}}
 		>
 			<p
 				className="card-header"
@@ -64,6 +69,12 @@ const commentCard = (props) => {
 					{props.comment.content}
 				</p>
 			</div>
+			<style jsx>{`
+				.card:hover {
+					background-color: #f9f9f9;
+					cursor: pointer;
+				}
+			`}</style>
 		</div>
 	);
 };

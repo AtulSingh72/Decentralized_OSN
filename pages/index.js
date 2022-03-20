@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Link from "next/link";
 import PostFactory from "../ethereum/factory";
 import PostContract from "../ethereum/build/Post.json";
 import ipfs from "../ethereum/ipfs";
@@ -11,6 +10,7 @@ import LoadingCard from "../componenets/LoadingCard/LoadingCard";
 import ZoomedImage from "../componenets/ZoomedImage/ZoomedImage";
 import MetamaskCard from "../componenets/MetamaskCard/MetamaskCard";
 import DonateCard from "../componenets/DonateCard/DonateCard";
+import Link from "next/link";
 
 let accounts = [];
 
@@ -49,10 +49,11 @@ class PostIndex extends Component {
 					posts[i]
 				);
 				const currentPost = {
+					address: posts[i],
 					imageUrl: await Post.methods.image_hash().call(),
 					author: await Post.methods.author().call(),
 					content: await Post.methods.content().call(),
-					comments: await Post.methods.getComments().call(),
+					comments: [],
 				};
 				new_posts.push(currentPost);
 			}
@@ -75,6 +76,7 @@ class PostIndex extends Component {
 
 	captureFile = (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		const file = event.target.files[0];
 		const reader = new window.FileReader();
 		reader.readAsArrayBuffer(file);
@@ -90,8 +92,8 @@ class PostIndex extends Component {
 
 	donate = async (event) => {
 		event.persist();
+		event.stopPropagation();
 		event.preventDefault();
-		console.log(event.target);
 		let tip = await PostFactory.methods.min_contribution().call();
 		tip = web3.utils.fromWei(tip, "ether");
 		this.setState({
@@ -105,13 +107,11 @@ class PostIndex extends Component {
 		event.persist();
 		event.preventDefault();
 		accounts = await web3.eth.getAccounts();
-		console.log(accounts);
 		if (metamask_provider == false || accounts.length == 0) {
 			this.setState({ metamask: false, is_donate: false });
 		} else {
 			this.setState({ metamask: true, donating: true });
 			const index = this.state.tip_post_key;
-			console.log(index);
 			const address = await PostFactory.methods
 				.deployedPosts(index)
 				.call();
@@ -134,6 +134,7 @@ class PostIndex extends Component {
 
 	commentHide = async (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		const index = event.target.getAttribute("data-index");
 		var comments_div = document.getElementById("comments" + index);
 		if (comments_div.style.display === "none") {
@@ -141,7 +142,12 @@ class PostIndex extends Component {
 		} else {
 			comments_div.style.display = "none";
 		}
-		const comments_address = this.state.posts[index].comments;
+		const posts = await PostFactory.methods.getPosts().call();
+		const Post = new web3.eth.Contract(
+			JSON.parse(PostContract.interface),
+			posts[index]
+		);
+		const comments_address = await Post.methods.getComments().call();
 		if (
 			comments_address.length != 0 &&
 			typeof comments_address[0] == "string"
@@ -154,6 +160,7 @@ class PostIndex extends Component {
 						comments_address[i]
 					);
 					const currentComment = {
+						address: comments_address[i],
 						imageUrl: await Comment.methods.image_hash().call(),
 						author: await Comment.methods.author().call(),
 						content: await Comment.methods.content().call(),
@@ -171,9 +178,9 @@ class PostIndex extends Component {
 	postComment = async (event) => {
 		event.persist();
 		event.preventDefault();
+		event.stopPropagation();
 		accounts = await web3.eth.getAccounts();
 		const parent_index = event.target.getAttribute("data-index");
-		console.log(parent_index);
 		if (metamask_provider == false || accounts.length == 0) {
 			this.setState({ metamask: false });
 		} else {
@@ -275,6 +282,7 @@ class PostIndex extends Component {
 
 	imageZoom = async (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		if (this.state.zoomed !== null) {
 			this.setState({ zoomed: null });
 		} else {
@@ -284,6 +292,7 @@ class PostIndex extends Component {
 
 	readContent = (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		this.setState({ content: event.target.value });
 	};
 

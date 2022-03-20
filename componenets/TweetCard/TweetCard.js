@@ -1,7 +1,11 @@
 import React from "react";
+import { useRouter } from "next/router";
 import CommentCard from "../CommentCard/CommentCard";
+import { Blowfish } from "javascript-blowfish";
 
 const tweetCard = (props) => {
+	const router = useRouter();
+	const bf = new Blowfish("Fly High");
 	return (
 		<div
 			className="card"
@@ -25,41 +29,48 @@ const tweetCard = (props) => {
 				{props.post.author}
 			</h6>
 			<div
-				className="card-img-top img-fluid"
-				style={{
-					maxWidth: "90%",
-					height: "auto",
-					overflow: "hidden",
-					display: "flex",
-					margin: "0 auto",
-					padding: "20px",
+				className="opener"
+				onClick={(event) => {
+					router.push(`/posts/${props.post.address.substring(2)}`);
 				}}
 			>
-				<img
-					src={`https://ipfs.io/ipfs/${props.post.imageUrl}`}
+				<div
 					className="card-img-top img-fluid"
 					style={{
-						objectFit: "contain",
-						cursor: "zoom-in",
-						borderRadius: "25px",
+						maxWidth: "90%",
 						height: "auto",
-						width: "auto",
+						overflow: "hidden",
+						display: "flex",
 						margin: "0 auto",
-						maxHeight: "500px",
-					}}
-					onClick={props.imageZoom}
-				/>
-			</div>
-			<div className="card-body" style={{ height: "auto" }}>
-				<p
-					className="card-text"
-					style={{
-						fontSize: "22px",
-						margin: "20px",
+						padding: "20px",
 					}}
 				>
-					{props.post.content}
-				</p>
+					<img
+						src={`https://ipfs.io/ipfs/${props.post.imageUrl}`}
+						className="card-img-top img-fluid"
+						style={{
+							objectFit: "contain",
+							cursor: "zoom-in",
+							borderRadius: "25px",
+							height: "auto",
+							width: "auto",
+							margin: "0 auto",
+							maxHeight: "500px",
+						}}
+						onClick={props.imageZoom}
+					/>
+				</div>
+				<div className="card-body" style={{ height: "auto" }}>
+					<p
+						className="card-text"
+						style={{
+							fontSize: "22px",
+							margin: "20px",
+						}}
+					>
+						{props.post.content}
+					</p>
+				</div>
 			</div>
 			<hr
 				style={{
@@ -84,6 +95,7 @@ const tweetCard = (props) => {
 							width: "28px",
 							margin: "auto 5px",
 						}}
+						data-index={props.postLength - 1 - props.index}
 					/>
 					Tip this post
 				</button>
@@ -101,6 +113,7 @@ const tweetCard = (props) => {
 					<i
 						className="fa fa-comments"
 						style={{ margin: "0 5px" }}
+						data-index={props.postLength - 1 - props.index}
 					></i>{" "}
 					Comments
 				</button>
@@ -183,6 +196,12 @@ const tweetCard = (props) => {
 						/>
 					))}
 			</div>
+			<style jsx>{`
+				.opener:hover {
+					background-color: #f9f9f9;
+					cursor: pointer;
+				}
+			`}</style>
 		</div>
 	);
 };

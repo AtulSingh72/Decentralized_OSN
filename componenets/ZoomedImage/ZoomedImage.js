@@ -3,7 +3,7 @@ import Backdrop from "../Overlay/Backdrop/Backdrop";
 
 const zoomedImage = (props) => {
 	return (
-		<Backdrop takeback={props.imageZoom}>
+		<Backdrop takeback={props.imageZoom} cursor="zoom-out">
 			<img
 				src={props.zoomed}
 				onClick={props.imageZoom}

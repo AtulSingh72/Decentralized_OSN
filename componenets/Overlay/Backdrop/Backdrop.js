@@ -17,6 +17,7 @@ const Backdrop = (props) => {
 				top: "0",
 				background: "rgba(0, 0, 0, 0.85)",
 				zIndex: "2",
+				cursor: props.cursor === undefined ? "default" : props.cursor,
 			}}
 			onClick={props.takeback}
 		>
