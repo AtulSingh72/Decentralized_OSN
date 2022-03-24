@@ -1,0 +1,7 @@
+.card-img-top {
+	background: transparent url("/loading.gif") center no-repeat;
+	min-height: 65px;
+}
+.row {
+	margin-bottom: 150px;
+}

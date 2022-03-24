@@ -1,11 +1,8 @@
 import React from "react";
 import { useRouter } from "next/router";
 import CommentCard from "../CommentCard/CommentCard";
-import { Blowfish } from "javascript-blowfish";
-
 const tweetCard = (props) => {
 	const router = useRouter();
-	const bf = new Blowfish("Fly High");
 	return (
 		<div
 			className="card"
@@ -56,8 +53,11 @@ const tweetCard = (props) => {
 							width: "auto",
 							margin: "0 auto",
 							maxHeight: "500px",
+							minHeight: "65px",
 						}}
 						onClick={props.imageZoom}
+						onLoad={props.imageLoaded}
+						data-index={props.postLength - 1 - props.index}
 					/>
 				</div>
 				<div className="card-body" style={{ height: "auto" }}>

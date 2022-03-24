@@ -324,8 +324,11 @@ class PostIndex extends Component {
 					<script src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0"></script>
 				</Head>
 				<div
-					className="col-3"
-					style={{ position: "relative", textAlign: "right" }}
+					className="col-lg-3"
+					style={{
+						position: "relative",
+						textAlign: "right",
+					}}
 				>
 					<Navbar />
 				</div>
@@ -377,6 +380,7 @@ class PostIndex extends Component {
 									captureFile={this.captureFile}
 									uploading={this.state.uploading}
 									key={index}
+									imageLoaded={this.imageLoaded}
 								/>
 							))}
 					</div>

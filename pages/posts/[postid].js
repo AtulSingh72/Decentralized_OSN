@@ -249,7 +249,7 @@ class Post extends Component {
 
 	render() {
 		return (
-			<div className="row">
+			<div className="row" style={{ width: "100%", height: "100%" }}>
 				<Head>
 					<title>DOSN</title>
 					<link
@@ -275,7 +275,7 @@ class Post extends Component {
 					<script src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0"></script>
 				</Head>
 				<div
-					className="col-3"
+					className="col-lg-3"
 					style={{ position: "relative", textAlign: "right" }}
 				>
 					<Navbar />

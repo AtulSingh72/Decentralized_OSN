@@ -6,7 +6,7 @@ const NavButtons = (props) => {
 	const activate = router.pathname === props.urlPath;
 	return (
 		<button
-			className={activate ? "nav-link active" : "nav-link"}
+			className={activate ? "btn btn-info" : "btn "}
 			id={props.keyValue}
 			data-bs-toggle="pill"
 			data-bs-target="#v-pills-home"

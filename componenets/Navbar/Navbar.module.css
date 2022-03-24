@@ -1,0 +1,42 @@
+.fa {
+	font-size: 36px;
+	margin: 2px 5px;
+}
+.mobile {
+	display: none;
+}
+.desktop {
+	display: block;
+}
+.navigation {
+	border-right: 2px solid rgb(165, 165, 165);
+	height: 100%;
+	padding: 2%;
+	border-radius: 50px;
+}
+@media only screen and (max-width: 900px) {
+	.fa {
+		font-size: 34px;
+	}
+	.navigation {
+		bottom: 0;
+		z-index: 100;
+		position: relative;
+		width: 100%;
+		height: auto;
+		background-color: white;
+		border-top: 2px solid rgb(165, 165, 165);
+		border-radius: 20px;
+		border-left: 0px;
+		padding: 0px;
+	}
+	.mobile {
+		display: block;
+	}
+	.mobile ul li {
+		margin: 0px auto;
+	}
+	.desktop {
+		display: none;
+	}
+}
