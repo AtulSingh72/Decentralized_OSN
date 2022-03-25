@@ -298,7 +298,7 @@ class PostIndex extends Component {
 
 	render() {
 		return (
-			<div className="row" style={{ width: "100%", height: "100%" }}>
+			<div className="row" style={{}}>
 				<Head>
 					<title>DOSN</title>
 					<link
@@ -332,7 +332,7 @@ class PostIndex extends Component {
 				>
 					<Navbar />
 				</div>
-				<div className="container col-9">
+				<div className="container col-lg-9">
 					{this.state.is_donate == true && (
 						<DonateCard
 							min_tip={this.state.min_tip}

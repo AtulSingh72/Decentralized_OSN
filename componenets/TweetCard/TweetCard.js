@@ -1,6 +1,8 @@
 import React from "react";
 import { useRouter } from "next/router";
 import CommentCard from "../CommentCard/CommentCard";
+import styles from "./TweetCard.module.css";
+
 const tweetCard = (props) => {
 	const router = useRouter();
 	return (
@@ -26,7 +28,7 @@ const tweetCard = (props) => {
 				{props.post.author}
 			</h6>
 			<div
-				className="opener"
+				className={styles.opener}
 				onClick={(event) => {
 					router.push(`/posts/${props.post.address.substring(2)}`);
 				}}
@@ -80,12 +82,7 @@ const tweetCard = (props) => {
 			></hr>
 			<div>
 				<button
-					className="btn btn-outline-dark"
-					style={{
-						width: "fit-content",
-						margin: "0 40px 20px",
-						padding: "10px",
-					}}
+					className={"btn btn-outline-dark " + styles.mobilebutton}
 					onClick={props.donate}
 					data-index={props.postLength - 1 - props.index}
 				>
@@ -97,14 +94,11 @@ const tweetCard = (props) => {
 						}}
 						data-index={props.postLength - 1 - props.index}
 					/>
-					Tip this post
+					<span>Tip this post</span>
 				</button>
 				<button
-					className="btn btn-outline-primary"
+					className={"btn btn-outline-primary " + styles.mobilebutton}
 					style={{
-						width: "fit-content",
-						margin: "0 40px 20px",
-						padding: "10px",
 						float: "right",
 					}}
 					data-index={props.postLength - 1 - props.index}
@@ -115,7 +109,7 @@ const tweetCard = (props) => {
 						style={{ margin: "0 5px" }}
 						data-index={props.postLength - 1 - props.index}
 					></i>{" "}
-					Comments
+					<span>Comments</span>
 				</button>
 			</div>
 			<div
@@ -153,7 +147,7 @@ const tweetCard = (props) => {
 					/>
 					<button
 						type="submit"
-						className="btn btn-primary"
+						className={"btn btn-primary " + styles.mobilebutton}
 						style={{ margin: "10px" }}
 					>
 						{props.uploading && (
@@ -196,12 +190,6 @@ const tweetCard = (props) => {
 						/>
 					))}
 			</div>
-			<style jsx>{`
-				.opener:hover {
-					background-color: #f9f9f9;
-					cursor: pointer;
-				}
-			`}</style>
 		</div>
 	);
 };

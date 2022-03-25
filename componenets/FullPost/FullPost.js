@@ -1,6 +1,7 @@
 import React from "react";
 import CommentCard from "../CommentCard/CommentCard";
 import CommentFullPost from "../CommentFullPost/CommentFullPost";
+import styles from "./FullPost.module.css";
 
 const FullPost = (props) => {
 	return (
@@ -36,7 +37,7 @@ const FullPost = (props) => {
 			<hr style={{ width: "80%", margin: "20px auto" }}></hr>
 			<div>
 				<button
-					className="btn btn-outline-dark"
+					className={"btn btn-outline-dark " + styles.mobilebutton}
 					style={{
 						width: "fit-content",
 						margin: "0 5px 20px 20px",
@@ -52,10 +53,10 @@ const FullPost = (props) => {
 							width: "25px",
 						}}
 					/>
-					Tip this post
+					<span>Tip this post</span>
 				</button>
 				<button
-					className="btn btn-outline-primary"
+					className={"btn btn-outline-primary " + styles.mobilebutton}
 					style={{
 						width: "fit-content",
 						margin: "0 20px 20px 5px",
@@ -68,7 +69,7 @@ const FullPost = (props) => {
 						className="fa fa-comments icons"
 						style={{ margin: "0 5px", fontSize: "20px" }}
 					></i>{" "}
-					Comments
+					<span>Comments</span>
 				</button>
 			</div>
 			{props.hideComments ? null : (

@@ -14,7 +14,7 @@
 	padding: 2%;
 	border-radius: 50px;
 }
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 991px) {
 	.fa {
 		font-size: 34px;
 	}
@@ -27,7 +27,7 @@
 		background-color: white;
 		border-top: 2px solid rgb(165, 165, 165);
 		border-radius: 20px;
-		border-left: 0px;
+		border-right: 0px;
 		padding: 0px;
 	}
 	.mobile {
