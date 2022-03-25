@@ -1,0 +1,11 @@
+.mobilebutton {
+	width: fit-content;
+	margin: 0 40px 20px;
+	padding: 10px;
+}
+
+@media only screen and (max-width: 991px) {
+	.mobilebutton span {
+		display: none;
+	}
+}
