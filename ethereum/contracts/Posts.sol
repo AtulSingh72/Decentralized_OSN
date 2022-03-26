@@ -30,6 +30,7 @@ contract PostFactory {
     }
 
     function setMinContribution(uint256 contribution) public {
+        require(managers_map[msg.sender]);
         min_contribution = contribution;
     }
 

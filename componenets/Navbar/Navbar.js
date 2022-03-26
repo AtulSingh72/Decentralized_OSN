@@ -11,6 +11,9 @@ const Navbar = () => {
 		if (button === "home") {
 			router.push("/");
 		}
+		if (button == "admin") {
+			router.push("/admin");
+		}
 		if (button == "back") {
 			router.back();
 		}
@@ -58,6 +61,19 @@ const Navbar = () => {
 							></i>
 						</NavButtons>
 					</li>
+					<li className="nav-item">
+						<NavButtons
+							name="Admin"
+							clickHandler={clickHandler}
+							keyValue="admin"
+							urlPath="/admin"
+						>
+							<i
+								className={styles.fa + " fa fa-briefcase"}
+								data-index="admin"
+							></i>
+						</NavButtons>
+					</li>
 				</ul>
 			</nav>
 			<nav className={"nav " + styles.mobile}>
@@ -98,6 +114,19 @@ const Navbar = () => {
 							<i
 								className={styles.fa + " fa fa-user"}
 								data-index="profile"
+							></i>
+						</NavButtons>
+					</li>
+					<li className="nav-item">
+						<NavButtons
+							name="Admin"
+							clickHandler={clickHandler}
+							keyValue="admin"
+							urlPath="/admin"
+						>
+							<i
+								className={styles.fa + " fa fa-briefcase"}
+								data-index="admin"
 							></i>
 						</NavButtons>
 					</li>
