@@ -8,7 +8,7 @@ const CommentFullPost = (props) => {
 			className="card"
 			style={{
 				margin: "20px auto 20px",
-				width: "750px",
+				maxWidth: "750px",
 				height: "fit-content",
 			}}
 			key={"comments_" + props.comment_index}

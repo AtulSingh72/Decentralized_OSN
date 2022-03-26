@@ -280,7 +280,7 @@ class Post extends Component {
 				>
 					<Navbar />
 				</div>
-				<div className="container col-9">
+				<div className="container col-lg-9">
 					{this.state.is_donate == true && (
 						<DonateCard
 							min_tip={this.state.min_tip}

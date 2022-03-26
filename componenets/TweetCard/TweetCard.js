@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import CommentCard from "../CommentCard/CommentCard";
 import styles from "./TweetCard.module.css";
 
 const tweetCard = (props) => {
 	const router = useRouter();
+	useEffect(() => {
+		props.isLoaded();
+	}, []);
 	return (
 		<div
 			className="card"
@@ -80,7 +83,7 @@ const tweetCard = (props) => {
 					margin: "0 auto 20px",
 				}}
 			></hr>
-			<div>
+			<div className={styles.postCardFooter}>
 				<button
 					className={"btn btn-outline-dark " + styles.mobilebutton}
 					onClick={props.donate}
@@ -121,7 +124,7 @@ const tweetCard = (props) => {
 					style={{
 						margin: "20px auto",
 						textAlign: "center",
-						width: "550px",
+						maxWidth: "550px",
 						borderRadius: "5px",
 						border: "1px solid gray",
 					}}
@@ -139,46 +142,64 @@ const tweetCard = (props) => {
 						value={props.content}
 					/>
 					<br></br>
-					<input
-						type="file"
-						onChange={props.captureFile}
-						style={{ margin: "10px" }}
-						id="file_upload_2"
-					/>
-					<button
-						type="submit"
-						className={"btn btn-primary " + styles.mobilebutton}
-						style={{ margin: "10px" }}
-					>
-						{props.uploading && (
-							<div style={{ margin: "5px" }}>
-								<span
-									style={{
-										float: "left",
-									}}
-								>
-									<img
-										src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
-										style={{
-											height: "28px",
-											margin: "0 15px 0 0",
-										}}
-									/>
-								</span>
-								<span
-									style={{
-										float: "right",
-									}}
-								>
-									<div>
-										Uploading...
-										<br></br>It might take upto 10 mins!!
-									</div>
-								</span>
-							</div>
-						)}
-						{!props.uploading && "Submit"}
-					</button>
+					<div className={styles.formfooter}>
+						<label
+							className={
+								styles.inputbutton + " " + styles.mobilebutton
+							}
+						>
+							<input
+								className={styles.fileinput}
+								type="file"
+								onChange={props.captureFile}
+								id="file_upload"
+							/>
+							<i
+								className="fa fa-picture-o"
+								aria-hidden="true"
+								style={{ margin: "5px auto" }}
+							></i>
+							<span>Upload Image</span>
+						</label>
+						<button
+							type="submit"
+							className="btn btn-primary"
+							style={{
+								margin: "10px auto",
+								display: "inline-block",
+							}}
+						>
+							{props.uploading && (
+								<div style={{ margin: "5px" }}>
+									<span style={{ float: "left" }}>
+										<img
+											src="https://c.tenor.com/k-A2Bukh1lUAAAAi/loading-loading-symbol.gif"
+											style={{
+												height: "28px",
+												margin: "0 15px 0 0",
+											}}
+										/>
+									</span>
+									<span style={{ float: "right" }}>
+										<div>
+											Uploading...<br></br>It might take
+											upto 10 mins!!
+										</div>
+									</span>
+								</div>
+							)}
+							{!props.uploading && (
+								<div className={styles.mobilebutton}>
+									<i
+										className="fa fa-upload"
+										aria-hidden="true"
+										style={{ margin: "5px" }}
+									></i>{" "}
+									<span>Submit</span>
+								</div>
+							)}
+						</button>
+					</div>
 				</form>
 				{props.post.comments
 					.slice(0)

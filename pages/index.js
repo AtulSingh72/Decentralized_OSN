@@ -22,7 +22,7 @@ class PostIndex extends Component {
 			buffer: null,
 			content: "",
 			zoomed: null,
-			loading: true,
+			loading: 0,
 			uploading: false,
 			matamask: true,
 			is_donate: false,
@@ -36,8 +36,13 @@ class PostIndex extends Component {
 
 	async componentDidMount() {
 		accounts = await web3.eth.getAccounts();
-		this.setState({ loading: false });
 	}
+
+	isLoaded = () => {
+		this.setState((prevState, props) => ({
+			loading: prevState.loading + 1,
+		}));
+	};
 
 	static async getInitialProps() {
 		const posts = await PostFactory.methods.getPosts().call();
@@ -348,7 +353,9 @@ class PostIndex extends Component {
 					{this.state.metamask == false && (
 						<MetamaskCard takeback={this.takeback} />
 					)}
-					{this.state.loading && <LoadingCard />}
+					{this.state.loading != this.state.posts.length && (
+						<LoadingCard />
+					)}
 					{this.state.zoomed !== null && (
 						<ZoomedImage
 							zoomed={this.state.zoomed}
@@ -381,6 +388,7 @@ class PostIndex extends Component {
 									uploading={this.state.uploading}
 									key={index}
 									imageLoaded={this.imageLoaded}
+									isLoaded={this.isLoaded}
 								/>
 							))}
 					</div>

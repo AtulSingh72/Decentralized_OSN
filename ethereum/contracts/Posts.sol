@@ -3,6 +3,22 @@ pragma solidity 0.4.17;
 contract PostFactory {
     address[] public deployedPosts;
     uint256 public min_contribution;
+    mapping(address => bool) public managers_map;
+    address[] public managers_array;
+
+    function PostFactory() public {
+        managers_map[msg.sender] = true;
+        managers_array.push(msg.sender);
+    }
+
+    function addManager(address new_manager) public {
+        managers_map[new_manager] = true;
+        managers_array.push(new_manager);
+    }
+
+    function getManagersList() public view returns (address[]) {
+        return managers_array;
+    }
 
     function createPost(string hash, string content) public {
         address post = new Post(hash, msg.sender, content);

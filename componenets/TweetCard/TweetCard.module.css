@@ -3,10 +3,27 @@
 	cursor: pointer;
 }
 
-.mobilebutton {
-	width: fit-content;
-	margin: 0 40px 20px;
-	padding: 10px;
+.fileinput {
+	display: none;
+}
+
+.formfooter {
+	display: flex;
+	justify-content: space-around;
+}
+
+.postCardFooter {
+	display: flex;
+	justify-content: space-around;
+	margin: 10px;
+}
+
+.inputbutton {
+	border: 1px solid #ccc;
+	display: inline-block;
+	padding: 6px 12px;
+	cursor: pointer;
+	margin: 10px auto;
 }
 
 @media only screen and (max-width: 991px) {

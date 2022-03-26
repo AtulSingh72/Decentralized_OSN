@@ -29,6 +29,7 @@
 		border-radius: 20px;
 		border-right: 0px;
 		padding: 0px;
+		left: 0;
 	}
 	.mobile {
 		display: block;
