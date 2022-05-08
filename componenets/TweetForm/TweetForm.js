@@ -35,7 +35,7 @@ const tweetForm = (props) => {
 						id="file_upload"
 					/>
 					<i
-						class="fa fa-picture-o"
+						className="fa fa-picture-o"
 						aria-hidden="true"
 						style={{ margin: "5px auto" }}
 					></i>
@@ -68,7 +68,7 @@ const tweetForm = (props) => {
 					{!props.uploading && (
 						<div className={styles.mobilebutton}>
 							<i
-								class="fa fa-upload"
+								className="fa fa-upload"
 								aria-hidden="true"
 								style={{ margin: "5px" }}
 							></i>{" "}

@@ -5,6 +5,8 @@ contract PostFactory {
     uint256 public min_contribution;
     mapping(address => bool) public managers_map;
     address[] public managers_array;
+    address[] public ongoing_elections;
+    
 
     function PostFactory() public {
         managers_map[msg.sender] = true;
@@ -42,6 +44,12 @@ contract PostFactory {
         address comment = new Post(image_hash, msg.sender, content);
         Post parent_post = Post(parent);
         parent_post.addComment(comment);
+    }
+
+    function newElection(address candidate) public {
+        address ele = new election(candidate);
+        ongoing_elections.push(ele);
+        
     }
 }
 
@@ -83,4 +91,56 @@ contract Post {
     function getComments() public view returns (address[]) {
         return comments;
     }
+}
+
+
+
+contract election{
+
+    address candidate;
+    mapping(address => bool) public voters;
+    uint256 vote_yes;
+    uint256 vote_no;
+    bool voting_ended;
+    PostFactory factory;
+
+
+    function election(address cand) public {
+        candidate = cand;
+        vote_yes = 0;
+        vote_no = 0;
+        voting_ended = false;
+        factory = PostFactory(msg.sender);
+    }
+
+    
+    function voteFor(address voter) public {
+        require(!voting_ended);
+        if(voters[voter] == false){
+            voters[voter] = true;
+            vote_yes += 1;
+        }
+        
+    }
+
+    function voteAgainst(address voter) public {
+        require(!voting_ended);
+        if(voters[voter] == false){
+            voters[voter] = false;
+            vote_no += 1;
+        }
+    }
+
+    function result() public returns (bool) {
+        voting_ended = true;
+        if(vote_yes > vote_no){
+            factory.addManager(candidate);
+            return true;
+        }
+        else{
+            return false;
+        }
+        
+    }
+
 }

@@ -1,0 +1,47 @@
+.candidateBar {
+  background-color: rgb(244, 244, 244);
+  padding: 20px;
+  margin: 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.candidateImage {
+  display: inline-block;
+}
+
+.candidateName {
+  margin-left: 15px;
+  display: inline-block;
+}
+
+.yes {
+  display: inline-block;
+  padding: 10px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.no {
+  display: inline-block;
+  padding: 10px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.voteButtons {
+  display: flex;
+  justify-content: space-around;
+  width: 15%;
+}
+
+.votedChip {
+  width: 15%;
+  border: 3px solid red;
+  padding: 7px;
+  border-radius: 25px;
+  font-weight: 600;
+}

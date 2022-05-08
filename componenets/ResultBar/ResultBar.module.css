@@ -1,0 +1,27 @@
+.ResultBar {
+  background-color: rgb(244, 244, 244);
+  padding: 20px;
+  margin: 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.candidateImage {
+  display: inline-block;
+}
+
+.candidateName {
+  margin-left: 15px;
+  display: inline-block;
+}
+
+.won {
+  color: rgb(101, 169, 0);
+  font-weight: 600;
+}
+
+.lost {
+  color: red;
+  font-weight: 600;
+}
