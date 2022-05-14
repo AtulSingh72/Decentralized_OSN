@@ -1,4 +1,7 @@
 {
   "editor.defaultFormatter": "SimonSiefke.prettier-vscode",
-  "editor.tabSize": 4
+  "editor.tabSize": 4,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

@@ -36,6 +36,10 @@ contract PostFactory {
         min_contribution = contribution;
     }
 
+    function getOngoingElections() public view returns(address[]) {
+        return ongoing_elections;
+    }
+
     function createComment(
         address parent,
         string image_hash,
@@ -46,10 +50,10 @@ contract PostFactory {
         parent_post.addComment(comment);
     }
 
-    function newElection(address candidate) public {
-        address ele = new election(candidate);
+    function newElection() public {
+        require(managers_map[msg.sender] == false);
+        address ele = new election(msg.sender);
         ongoing_elections.push(ele);
-        
     }
 }
 
@@ -91,17 +95,24 @@ contract Post {
     function getComments() public view returns (address[]) {
         return comments;
     }
+
+    // function delete_post() public{
+    //     address myAddress = address(this);
+    //     delete factory.deployedPosts[myAddress]
+    //     selfdestruct(myAddress);
+    // }
 }
 
 
 
 contract election{
 
-    address candidate;
+    address public candidate;
     mapping(address => bool) public voters;
-    uint256 vote_yes;
-    uint256 vote_no;
-    bool voting_ended;
+    uint256 public vote_yes;
+    uint256 public vote_no;
+    bool public voting_ended;
+    uint256 public createTime;
     PostFactory factory;
 
 
@@ -109,13 +120,13 @@ contract election{
         candidate = cand;
         vote_yes = 0;
         vote_no = 0;
-        voting_ended = false;
+        createTime = now;
         factory = PostFactory(msg.sender);
     }
 
     
-    function voteFor(address voter) public {
-        require(!voting_ended);
+    function voteFor(address voter, uint256 timestamp) public {
+        require(!isElectionEnded(timestamp));
         if(voters[voter] == false){
             voters[voter] = true;
             vote_yes += 1;
@@ -123,24 +134,28 @@ contract election{
         
     }
 
-    function voteAgainst(address voter) public {
-        require(!voting_ended);
+    function voteAgainst(address voter, uint256 timestamp) public {
+        require(!isElectionEnded(timestamp));
         if(voters[voter] == false){
-            voters[voter] = false;
+            voters[voter] = true;
             vote_no += 1;
         }
     }
 
-    function result() public returns (bool) {
-        voting_ended = true;
-        if(vote_yes > vote_no){
-            factory.addManager(candidate);
-            return true;
-        }
-        else{
-            return false;
-        }
+    function isElectionEnded(uint256 timestamp) public view returns(bool) {
+        return (timestamp > createTime + 30 seconds);
+    }
+
+    function addAdmin(uint256 timestamp) public {
+        require(!isElectionEnded(timestamp));
+        factory.addManager(candidate);
         
     }
+
+    // function delete_election() public{
+    //     address myAddress = address(this);
+    //     delete factory.ongoing_elections[myAddress]
+    //     selfdestruct(myAddress);
+    // }
 
 }
