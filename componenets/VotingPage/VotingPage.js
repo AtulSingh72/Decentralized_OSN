@@ -44,6 +44,7 @@ const VotingPage = (props) => {
 				.map((election, index) => (
 					<ResultBar
 						candidate={election.address}
+						contract_address={election.contract_address}
 						result={election.result ? "WON" : "LOST"}
 					/>
 				))}

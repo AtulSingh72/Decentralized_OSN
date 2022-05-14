@@ -45,6 +45,7 @@ class VotePage extends Component {
 						voted: await Election.methods
 							.voters(accounts[0])
 							.call(),
+						contract_address: elections[i],
 					};
 					new_elections.push(curr_election);
 				} else {
@@ -54,6 +55,7 @@ class VotePage extends Component {
 						result:
 							(await Election.methods.vote_yes().call()) >
 							(await Election.methods.vote_no().call()),
+						contract_address: elections[i],
 					};
 					old_elections.push(curr_election);
 				}
@@ -92,6 +94,7 @@ class VotePage extends Component {
 							voted: await Election.methods
 								.voters(accounts[0])
 								.call(),
+							contract_address: elections[i],
 						};
 						new_elections.push(curr_election);
 					} else {
@@ -101,6 +104,7 @@ class VotePage extends Component {
 							result:
 								(await Election.methods.vote_yes().call()) >
 								(await Election.methods.vote_no().call()),
+							contract_address: elections[i],
 						};
 						old_elections.push(curr_election);
 					}
@@ -152,6 +156,7 @@ class VotePage extends Component {
 							voted: await Election.methods
 								.voters(accounts[0])
 								.call(),
+							contract_address: elections[i],
 						};
 						new_elections.push(curr_election);
 					} else {
@@ -161,6 +166,7 @@ class VotePage extends Component {
 							result:
 								(await Election.methods.vote_yes().call()) >
 								(await Election.methods.vote_no().call()),
+							contract_address: elections[i],
 						};
 						old_elections.push(curr_election);
 					}
@@ -206,6 +212,7 @@ class VotePage extends Component {
 						voted: await Election.methods
 							.voters(accounts[0])
 							.call(),
+						contract_address: elections[i],
 					};
 					new_elections.push(curr_election);
 				} else {
@@ -215,6 +222,7 @@ class VotePage extends Component {
 						result:
 							(await Election.methods.vote_yes().call()) >
 							(await Election.methods.vote_no().call()),
+						contract_address: elections[i],
 					};
 					old_elections.push(curr_election);
 				}
@@ -259,6 +267,7 @@ class VotePage extends Component {
 						voted: await Election.methods
 							.voters(accounts[0])
 							.call(),
+						contract_address: elections[i],
 					};
 					new_elections.push(curr_election);
 				} else {
@@ -268,6 +277,7 @@ class VotePage extends Component {
 						result:
 							(await Election.methods.vote_yes().call()) >
 							(await Election.methods.vote_no().call()),
+						contract_address: elections[i],
 					};
 					old_elections.push(curr_election);
 				}
