@@ -57,11 +57,13 @@ contract PostFactory {
     }
 
     function deleteAtIndex(uint index) public {
-        address[] new_deployed_post;
+        address[] memory new_deployed_post = new address[](deployedPosts.length - 1);
+        uint count = 0;
         for(uint i = 0; i < deployedPosts.length; i++) {
-            if(i <= index) continue;
+            if(i == index) continue;
             else {
-                new_deployed_post.push(deployedPosts[i]);
+                new_deployed_post[count] = deployedPosts[i];
+                count++;
             }
         }
         deployedPosts = new_deployed_post;
@@ -111,11 +113,13 @@ contract Post {
     }
 
     function deleteAtIndex(uint index) public {
-        address[] new_deployed_post;
+        address[] memory new_deployed_post = new address[](comments.length - 1);
+        uint count = 0;
         for(uint i = 0; i < comments.length; i++) {
-            if(i <= index) continue;
+            if(i == index) continue;
             else {
-                new_deployed_post.push(comments[i]);
+                new_deployed_post[count] = comments[i];
+                count += 1;
             }
         }
         comments = new_deployed_post;

@@ -4,6 +4,7 @@ import CommentCard from "../CommentCard/CommentCard";
 import styles from "./TweetCard.module.css";
 
 const tweetCard = (props) => {
+	console.log(props.post);
 	const router = useRouter();
 	useEffect(() => {
 		props.isLoaded();
