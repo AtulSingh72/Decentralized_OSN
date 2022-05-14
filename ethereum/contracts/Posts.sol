@@ -1,4 +1,4 @@
-pragma solidity 0.4.17;
+pragma solidity ^0.4.22;
 
 contract PostFactory {
     address[] public deployedPosts;
@@ -23,7 +23,7 @@ contract PostFactory {
     }
 
     function createPost(string hash, string content) public {
-        address post = new Post(hash, msg.sender, content);
+        address post = new Post(hash, msg.sender, content, address(this));
         deployedPosts.push(post);
     }
 
@@ -45,7 +45,7 @@ contract PostFactory {
         string image_hash,
         string content
     ) public {
-        address comment = new Post(image_hash, msg.sender, content);
+        address comment = new Post(image_hash, msg.sender, content, parent);
         Post parent_post = Post(parent);
         parent_post.addComment(comment);
     }
@@ -55,6 +55,17 @@ contract PostFactory {
         address ele = new election(msg.sender);
         ongoing_elections.push(ele);
     }
+
+    function deleteAtIndex(uint index) public {
+        address[] new_deployed_post;
+        for(uint i = 0; i < deployedPosts.length; i++) {
+            if(i <= index) continue;
+            else {
+                new_deployed_post.push(deployedPosts[i]);
+            }
+        }
+        deployedPosts = new_deployed_post;
+    }
 }
 
 contract Post {
@@ -63,16 +74,19 @@ contract Post {
     address public author;
     PostFactory factory;
     address[] comments;
+    address parent;
 
     function Post(
         string hash,
         address creator,
-        string text
+        string text,
+        address par
     ) public payable {
         image_hash = hash;
         author = creator;
         content = text;
         factory = PostFactory(msg.sender);
+        parent = par;
     }
 
     function setImageHash(string hash) public {
@@ -96,11 +110,53 @@ contract Post {
         return comments;
     }
 
-    // function delete_post() public{
-    //     address myAddress = address(this);
-    //     delete factory.deployedPosts[myAddress]
-    //     selfdestruct(myAddress);
-    // }
+    function deleteAtIndex(uint index) public {
+        address[] new_deployed_post;
+        for(uint i = 0; i < comments.length; i++) {
+            if(i <= index) continue;
+            else {
+                new_deployed_post.push(comments[i]);
+            }
+        }
+        comments = new_deployed_post;
+    }
+
+    function deletePost() public {
+        require(factory.managers_map(msg.sender));
+        address caller = msg.sender;
+
+        // delete current post from parent array
+        if(parent == address(factory)) {
+            address[] memory deployedPosts = factory.getPosts();
+            for(uint i = 0; i < deployedPosts.length; i++) {
+                if(deployedPosts[i] == address(this)) {
+                    factory.deleteAtIndex(i);
+                    break;
+                }
+            }
+        }
+        else {
+            Post parent_post = Post(parent);
+            address[] memory parent_comments = parent_post.getComments();
+            for(i = 0; i < parent_comments.length; i++) {
+                if(parent_comments[i] == address(this)) {
+                    parent_post.deleteAtIndex(i);
+                    break;
+                }
+            }
+        }
+
+        // delete all child posts
+        address[] dummy_comments = comments;
+        for(i = 0; i < dummy_comments.length; i++) {
+            Post curr_comment = Post(dummy_comments[i]);
+            curr_comment.deletePost();
+        }
+
+        // delete current post
+        selfdestruct(caller);
+    }
+
 }
 
 
@@ -137,9 +193,13 @@ contract election{
     function voteAgainst(address voter, uint256 timestamp) public {
         require(!isElectionEnded(timestamp));
         if(voters[voter] == false){
-            voters[voter] = true;
+            voters[voter] = false;
             vote_no += 1;
         }
+    }
+
+    function timePassed() public view returns(uint256) {
+        return now - createTime;
     }
 
     function isElectionEnded(uint256 timestamp) public view returns(bool) {
@@ -147,15 +207,8 @@ contract election{
     }
 
     function addAdmin(uint256 timestamp) public {
-        require(isElectionEnded(timestamp));
+        require(!isElectionEnded(timestamp));
         factory.addManager(candidate);
         
     }
-
-    // function delete_election() public{
-    //     address myAddress = address(this);
-    //     delete factory.ongoing_elections[myAddress]
-    //     selfdestruct(myAddress);
-    // }
-
 }
