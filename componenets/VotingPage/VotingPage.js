@@ -43,6 +43,7 @@ const VotingPage = (props) => {
 				.reverse()
 				.map((election, index) => (
 					<ResultBar
+						index={election.index}
 						candidate={election.address}
 						contract_address={election.contract_address}
 						result={election.result ? "WON" : "LOST"}

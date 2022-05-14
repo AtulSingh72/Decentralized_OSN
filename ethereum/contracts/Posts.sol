@@ -147,7 +147,7 @@ contract election{
     }
 
     function addAdmin(uint256 timestamp) public {
-        require(!isElectionEnded(timestamp));
+        require(isElectionEnded(timestamp));
         factory.addManager(candidate);
         
     }
