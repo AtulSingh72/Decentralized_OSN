@@ -20,12 +20,16 @@ contract PostFactory {
 
     function removeManager(address del_manager) public {
         managers_map[del_manager] = false;
+        address[] memory new_managers_array = new address[](managers_array.length - 1);
+        uint count = 0;
         for(uint i = 0; i < managers_array.length; i++) {
-                if(managers_array[i] == del_manager) {
-                    delete managers_array[i];
-                    break;
-                }
+            if(managers_array[i] == del_manager) continue;
+            else {
+                new_managers_array[count] = managers_array[i];
+                count++;
             }
+        }
+        managers_array = new_managers_array;
     }
 
     function getManagersList() public view returns (address[]) {
