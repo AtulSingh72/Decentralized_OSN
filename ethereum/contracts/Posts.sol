@@ -18,6 +18,16 @@ contract PostFactory {
         managers_array.push(new_manager);
     }
 
+    function removeManager(address del_manager) public {
+        managers_map[del_manager] = false;
+        for(uint i = 0; i < managers_array.length; i++) {
+                if(managers_array[i] == del_manager) {
+                    delete managers_array[i];
+                    break;
+                }
+            }
+    }
+
     function getManagersList() public view returns (address[]) {
         return managers_array;
     }
@@ -54,6 +64,12 @@ contract PostFactory {
         require(managers_map[msg.sender] == false);
         address ele = new election(msg.sender);
         ongoing_elections.push(ele);
+    }
+
+    function newDeElection(address candidate) public {
+        require(managers_map[candidate]);
+        address de_ele = new deElection(candidate);
+        ongoing_elections.push(de_ele);
     }
 
     function deleteAtIndex(uint index) public {
@@ -211,8 +227,63 @@ contract election{
     }
 
     function addAdmin(uint256 timestamp) public {
-        require(!isElectionEnded(timestamp));
+        require(isElectionEnded(timestamp));
         factory.addManager(candidate);
+        
+    }
+}
+
+
+
+
+contract deElection{
+
+    address public candidate;
+    mapping(address => bool) public voters;
+    uint256 public vote_yes;
+    uint256 public vote_no;
+    bool public voting_ended;
+    uint256 public createTime;
+    PostFactory factory;
+
+
+    function deElection(address cand) public {
+        candidate = cand;
+        vote_yes = 0;
+        vote_no = 0;
+        createTime = now;
+        factory = PostFactory(msg.sender);
+    }
+
+    
+    function voteFor(address voter, uint256 timestamp) public {
+        require(!isElectionEnded(timestamp));
+        if(voters[voter] == false){
+            voters[voter] = true;
+            vote_yes += 1;
+        }
+        
+    }
+
+    function voteAgainst(address voter, uint256 timestamp) public {
+        require(!isElectionEnded(timestamp));
+        if(voters[voter] == false){
+            voters[voter] = false;
+            vote_no += 1;
+        }
+    }
+
+    function timePassed() public view returns(uint256) {
+        return now - createTime;
+    }
+
+    function isElectionEnded(uint256 timestamp) public view returns(bool) {
+        return (timestamp > createTime + 30 seconds);
+    }
+
+    function removeAdmin(uint256 timestamp) public {
+        require(isElectionEnded(timestamp));
+        factory.removeManager(candidate);
         
     }
 }
