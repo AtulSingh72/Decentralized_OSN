@@ -32,6 +32,7 @@ class Post extends Component {
 			disable_transact_okay: true,
 			donating: false,
 			uploading: false,
+			type: "",
 		};
 	}
 
@@ -48,6 +49,7 @@ class Post extends Component {
 		const author = await Post.methods.author().call();
 		const content = await Post.methods.content().call();
 		const imageUrl = await Post.methods.image_hash().call();
+		const filetype = await Post.methods.content_type().call();
 		this.setState({
 			author: author,
 			content: content,
@@ -55,6 +57,7 @@ class Post extends Component {
 			comments: [],
 			address: nextProps.address,
 			hideComments: true,
+			type: filetype,
 		});
 	}
 
@@ -68,11 +71,13 @@ class Post extends Component {
 		const author = await Post.methods.author().call();
 		const content = await Post.methods.content().call();
 		const imageUrl = await Post.methods.image_hash().call();
+		const filetype = await Post.methods.content_type().call();
 		this.setState({
 			author: author,
 			content: content,
 			imageUrl: imageUrl,
 			comments: [],
+			type: filetype,
 		});
 	}
 
@@ -121,6 +126,7 @@ class Post extends Component {
 						imageUrl: await Comment.methods.image_hash().call(),
 						author: await Comment.methods.author().call(),
 						content: await Comment.methods.content().call(),
+						type: await Comment.methods.content_type().call(),
 					};
 					new_comments.push(currentComment);
 				}
@@ -317,6 +323,7 @@ class Post extends Component {
 						readContent={this.readContent}
 						captureFile={this.captureFile}
 						uploading={this.state.uploading}
+						type={this.state.type}
 					/>
 				</div>
 			</div>

@@ -37,8 +37,8 @@ contract PostFactory {
         return managers_array;
     }
 
-    function createPost(string hash, string content) public {
-        address post = new Post(hash, msg.sender, content, address(this));
+    function createPost(string hash, string content, string content_type) public {
+        address post = new Post(hash, msg.sender, content, address(this), content_type);
         deployedPosts.push(post);
     }
 
@@ -62,9 +62,10 @@ contract PostFactory {
     function createComment(
         address parent,
         string image_hash,
-        string content
+        string content,
+        string file_type
     ) public {
-        address comment = new Post(image_hash, msg.sender, content, parent);
+        address comment = new Post(image_hash, msg.sender, content, parent, file_type);
         Post parent_post = Post(parent);
         parent_post.addComment(comment);
     }
@@ -102,18 +103,21 @@ contract Post {
     PostFactory factory;
     address[] comments;
     address parent;
+    string public content_type;
 
     function Post(
         string hash,
         address creator,
         string text,
-        address par
+        address par,
+        string type_of_content
     ) public payable {
         image_hash = hash;
         author = creator;
         content = text;
         factory = PostFactory(msg.sender);
         parent = par;
+        content_type = type_of_content;
     }
 
     function setImageHash(string hash) public {

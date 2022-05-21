@@ -1,4 +1,5 @@
 import React from "react";
+import ReactPlayer from "react-player";
 import CommentCard from "../CommentCard/CommentCard";
 import CommentFullPost from "../CommentFullPost/CommentFullPost";
 import styles from "./FullPost.module.css";
@@ -19,20 +20,33 @@ const FullPost = (props) => {
 			</h5>
 			<p className="content">{props.content}</p>
 			<div className="image-container">
-				<img
-					src={`https://ipfs.io/ipfs/${props.imageUrl}`}
-					className="card-img-top img-fluid"
-					style={{
-						objectFit: "contain",
-						cursor: "zoom-in",
-						borderRadius: "25px",
-						height: "auto",
-						width: "auto",
-						margin: "0 auto",
-						maxHeight: "600px",
-					}}
-					onClick={props.imageZoom}
-				/>
+				{props.type === "image" ? (
+					<img
+						src={`https://ipfs.io/ipfs/${props.imageUrl}`}
+						className="card-img-top img-fluid"
+						style={{
+							objectFit: "contain",
+							cursor: "zoom-in",
+							borderRadius: "25px",
+							height: "auto",
+							width: "auto",
+							margin: "0 auto",
+							maxHeight: "500px",
+							minHeight: "65px",
+						}}
+						onClick={props.imageZoom}
+						onLoad={props.imageLoaded}
+						data-index={props.postLength - 1 - props.index}
+					/>
+				) : (
+					<div style={{ margin: "0px auto" }}>
+						<ReactPlayer
+							className={styles.reactPlayer}
+							url={`https://ipfs.io/ipfs/${props.imageUrl}`}
+							controls="true"
+						/>
+					</div>
+				)}
 			</div>
 			<hr style={{ width: "80%", margin: "20px auto" }}></hr>
 			<div className={styles.postCardFooter}>

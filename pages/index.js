@@ -32,6 +32,7 @@ class PostIndex extends Component {
 			donating: false,
 			disable_transact_okay: true,
 			current_user: "",
+			filetype: "",
 		};
 	}
 
@@ -61,6 +62,7 @@ class PostIndex extends Component {
 					author: await Post.methods.author().call(),
 					content: await Post.methods.content().call(),
 					comments: [],
+					type: await Post.methods.content_type().call(),
 				};
 				new_posts.push(currentPost);
 			}
@@ -85,10 +87,14 @@ class PostIndex extends Component {
 		event.preventDefault();
 		event.stopPropagation();
 		const file = event.target.files[0];
+		const filetype = file.type.split("/")[0];
 		const reader = new window.FileReader();
 		reader.readAsArrayBuffer(file);
 		reader.onloadend = () => {
-			this.setState({ buffer: Buffer(reader.result) });
+			this.setState({
+				buffer: Buffer(reader.result),
+				filetype: filetype,
+			});
 		};
 	};
 
@@ -171,6 +177,7 @@ class PostIndex extends Component {
 						imageUrl: await Comment.methods.image_hash().call(),
 						author: await Comment.methods.author().call(),
 						content: await Comment.methods.content().call(),
+						type: await Post.methods.content_type().call(),
 					};
 					new_comments.push(currentComment);
 				}
@@ -204,7 +211,7 @@ class PostIndex extends Component {
 					.createComment(
 						parent_address,
 						result[0].hash,
-						this.state.content
+						this.state.filetype
 					)
 					.send({ from: accounts[0] });
 				const parent_post = new web3.eth.Contract(
@@ -226,6 +233,7 @@ class PostIndex extends Component {
 							imageUrl: await Comment.methods.image_hash().call(),
 							author: await Comment.methods.author().call(),
 							content: await Comment.methods.content().call(),
+							type: await Comment.methods.content_type().call(),
 						};
 						new_comments.push(currentComment);
 					}
@@ -256,7 +264,11 @@ class PostIndex extends Component {
 					return;
 				}
 				await PostFactory.methods
-					.createPost(result[0].hash, this.state.content)
+					.createPost(
+						result[0].hash,
+						this.state.content,
+						this.state.filetype
+					)
 					.send({ from: accounts[0] });
 				const posts = await PostFactory.methods.getPosts().call();
 				let new_posts = await (async function (posts) {
@@ -271,6 +283,7 @@ class PostIndex extends Component {
 							author: await Post.methods.author().call(),
 							content: await Post.methods.content().call(),
 							comments: await Post.methods.getComments().call(),
+							type: await Post.methods.content_type().call(),
 						};
 						new_posts.push(currentPost);
 					}
@@ -328,6 +341,7 @@ class PostIndex extends Component {
 					author: await Post.methods.author().call(),
 					content: await Post.methods.content().call(),
 					comments: [],
+					type: await Post.methods.content_type().call(),
 				};
 				new_posts.push(currentPost);
 			}

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import CommentCard from "../CommentCard/CommentCard";
 import styles from "./TweetCard.module.css";
 import { web3, metamaskProvider } from "../../ethereum/web3";
+import ReactPlayer from "react-player";
 
 const tweetCard = (props) => {
 	const router = useRouter();
@@ -45,23 +46,32 @@ const tweetCard = (props) => {
 						padding: "20px",
 					}}
 				>
-					<img
-						src={`https://ipfs.io/ipfs/${props.post.imageUrl}`}
-						className="card-img-top img-fluid"
-						style={{
-							objectFit: "contain",
-							cursor: "zoom-in",
-							borderRadius: "25px",
-							height: "auto",
-							width: "auto",
-							margin: "0 auto",
-							maxHeight: "500px",
-							minHeight: "65px",
-						}}
-						onClick={props.imageZoom}
-						onLoad={props.imageLoaded}
-						data-index={props.postLength - 1 - props.index}
-					/>
+					{props.post.type === "image" ? (
+						<img
+							src={`https://ipfs.io/ipfs/${props.post.imageUrl}`}
+							className="card-img-top img-fluid"
+							style={{
+								objectFit: "contain",
+								cursor: "zoom-in",
+								borderRadius: "25px",
+								height: "auto",
+								width: "auto",
+								margin: "0 auto",
+								maxHeight: "500px",
+								minHeight: "65px",
+							}}
+							onClick={props.imageZoom}
+							onLoad={props.imageLoaded}
+							data-index={props.postLength - 1 - props.index}
+						/>
+					) : (
+						<div style={{ margin: "0px auto" }}>
+							<ReactPlayer
+								url={`https://ipfs.io/ipfs/${props.post.imageUrl}`}
+								controls="true"
+							/>
+						</div>
+					)}
 				</div>
 				<div className="card-body" style={{ height: "auto" }}>
 					<p
