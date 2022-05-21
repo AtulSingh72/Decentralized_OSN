@@ -18,6 +18,12 @@ const ResultBar = (props) => {
 			.call();
 		return show && !is_admin;
 	};
+	const showResult_1 = async (event) => {
+		const is_admin = await PostFactory.methods
+			.managers_map(props.candidate)
+			.call();
+		return !is_admin;
+	};
 	const removeAdmin = async (event) => {
 		event.preventDefault();
 		event.persist();
@@ -57,7 +63,7 @@ const ResultBar = (props) => {
 		}
 	};
 	const demouseEnter = async (event) => {
-		if (props.result == "WON") {
+		if (props.result == "WON" && (await showResult())) {
 			const result = document.getElementById(
 				props.contract_address + " hover-start " + props.type
 			);
@@ -69,7 +75,7 @@ const ResultBar = (props) => {
 		}
 	};
 	const demouseLeave = async (event) => {
-		if (props.result === "WON") {
+		if (props.result === "WON" && (await showResult())) {
 			const result = document.getElementById(
 				props.contract_address + " hover-start " + props.type
 			);
