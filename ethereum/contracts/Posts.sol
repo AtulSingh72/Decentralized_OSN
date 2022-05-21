@@ -6,6 +6,7 @@ contract PostFactory {
     mapping(address => bool) public managers_map;
     address[] public managers_array;
     address[] public ongoing_elections;
+    address[] public ongoing_de_elections;
     
 
     function PostFactory() public {
@@ -54,6 +55,10 @@ contract PostFactory {
         return ongoing_elections;
     }
 
+    function getOngoingDeElections() public view returns(address[]) {
+        return ongoing_de_elections;
+    }
+
     function createComment(
         address parent,
         string image_hash,
@@ -73,7 +78,7 @@ contract PostFactory {
     function newDeElection(address candidate) public {
         require(managers_map[candidate]);
         address de_ele = new deElection(candidate);
-        ongoing_elections.push(de_ele);
+        ongoing_de_elections.push(de_ele);
     }
 
     function deleteAtIndex(uint index) public {
@@ -274,10 +279,6 @@ contract deElection{
         }
     }
 
-    function timePassed() public view returns(uint256) {
-        return now - createTime;
-    }
-
     function isElectionEnded(uint256 timestamp) public view returns(bool) {
         return (timestamp > createTime + 30 seconds);
     }
@@ -289,5 +290,3 @@ contract deElection{
         
     }
 }
-
-// 0x8ea407801Ff079dedC4e01D12a106A0F82741a5c

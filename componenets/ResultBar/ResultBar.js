@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./ResultBar.module.css";
 import { web3, metamask_provider } from "../../ethereum/web3";
 import ElectionContract from "../../ethereum/build/election.json";
+import DeElectionContract from "../../ethereum/build/deElection.json";
 import PostFactory from "../../ethereum/factory";
 
 const ResultBar = (props) => {
@@ -16,6 +17,24 @@ const ResultBar = (props) => {
 			.managers_map(accounts[0])
 			.call();
 		return show && !is_admin;
+	};
+	const removeAdmin = async (event) => {
+		event.preventDefault();
+		event.persist();
+		let accounts = await web3.eth.getAccounts();
+		console.log(event.target);
+		const index = event.target.getAttribute("data-index");
+		const elections = await PostFactory.methods
+			.getOngoingDeElections()
+			.call();
+		const curr_election = elections[index];
+		const Election = new web3.eth.Contract(
+			JSON.parse(DeElectionContract.interface),
+			curr_election
+		);
+		await Election.methods
+			.removeAdmin(Math.floor(Date.now() / 1000))
+			.send({ from: accounts[0] });
 	};
 	const becomeAdmin = async (event) => {
 		event.preventDefault();
@@ -37,14 +56,38 @@ const ResultBar = (props) => {
 				.send({ from: accounts[0] });
 		}
 	};
+	const demouseEnter = async (event) => {
+		if (props.result == "WON") {
+			const result = document.getElementById(
+				props.contract_address + " hover-start " + props.type
+			);
+			const button = document.getElementById(
+				props.contract_address + " hover-end " + props.type
+			);
+			result.style.display = "none";
+			button.style.display = "block";
+		}
+	};
+	const demouseLeave = async (event) => {
+		if (props.result === "WON") {
+			const result = document.getElementById(
+				props.contract_address + " hover-start " + props.type
+			);
+			const button = document.getElementById(
+				props.contract_address + " hover-end " + props.type
+			);
+			result.style.display = "block";
+			button.style.display = "none";
+		}
+	};
 	const mouseEnter = async (event) => {
 		if (props.result === "WON" && (await showResult())) {
 			console.log(props.result === "WON", await showResult());
 			const result = document.getElementById(
-				props.contract_address + " hover-start"
+				props.contract_address + " hover-start " + props.type
 			);
 			const button = document.getElementById(
-				props.contract_address + " hover-end"
+				props.contract_address + " hover-end " + props.type
 			);
 			result.style.display = "none";
 			button.style.display = "block";
@@ -53,10 +96,10 @@ const ResultBar = (props) => {
 	const mouseLeave = async (event) => {
 		if (props.result === "WON" && (await showResult())) {
 			const result = document.getElementById(
-				props.contract_address + " hover-start"
+				props.contract_address + " hover-start " + props.type
 			);
 			const button = document.getElementById(
-				props.contract_address + " hover-end"
+				props.contract_address + " hover-end " + props.type
 			);
 			result.style.display = "block";
 			button.style.display = "none";
@@ -65,8 +108,8 @@ const ResultBar = (props) => {
 	return (
 		<div
 			className={styles.ResultBar}
-			onMouseEnter={mouseEnter}
-			onMouseLeave={mouseLeave}
+			onMouseEnter={props.type === "election" ? mouseEnter : demouseEnter}
+			onMouseLeave={props.type === "election" ? mouseLeave : demouseLeave}
 		>
 			<div className={styles.candidateImage}>
 				<img
@@ -84,21 +127,27 @@ const ResultBar = (props) => {
 			</div>
 			<div
 				className={props.result === "WON" ? styles.won : styles.lost}
-				id={props.contract_address + " hover-start"}
+				id={props.contract_address + " hover-start " + props.type}
 			>
 				{props.result}
 			</div>
 			{props.result === "WON" && showResult() ? (
 				<div
 					className={styles.adminButton}
-					id={props.contract_address + " hover-end"}
+					id={props.contract_address + " hover-end " + props.type}
 				>
 					<button
 						className="btn btn-outline-success"
 						data-index={props.index}
-						onClick={becomeAdmin}
+						onClick={
+							props.type === "election"
+								? becomeAdmin
+								: removeAdmin
+						}
 					>
-						Become Admin
+						{props.type === "election"
+							? "Become Admin"
+							: "Remove Admin"}
 					</button>
 				</div>
 			) : null}

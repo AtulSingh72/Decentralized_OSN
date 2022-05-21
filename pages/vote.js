@@ -7,6 +7,8 @@ import PostFactory from "../ethereum/factory";
 import { web3, metamask_provider } from "../ethereum/web3";
 import MetamaskCard from "../componenets/MetamaskCard/MetamaskCard";
 import ElectionContract from "../ethereum/build/election.json";
+import DeElectionContract from "../ethereum/build/deElection.json";
+import RemoveAdmin from "../componenets/RemoveAdmin/RemoveAdmin";
 
 let accounts = [];
 
@@ -18,6 +20,8 @@ class VotePage extends Component {
 			ongoing_elections: [],
 			past_elections: [],
 			is_manager: false,
+			past_de_elections: [],
+			ongoing_de_elections: [],
 		};
 	}
 
@@ -62,9 +66,49 @@ class VotePage extends Component {
 			}
 			return [new_elections, old_elections];
 		})(elections);
+
+		elections = await PostFactory.methods.getOngoingDeElections().call();
+		let all_de_elections = await (async function (elections) {
+			let new_elections = [];
+			let old_elections = [];
+			for (let i = 0; i < elections.length; i++) {
+				const Election = new web3.eth.Contract(
+					JSON.parse(DeElectionContract.interface),
+					elections[i]
+				);
+				const voting_ended = await Election.methods
+					.isElectionEnded(Math.floor(Date.now() / 1000))
+					.call();
+				if (!voting_ended) {
+					const curr_election = {
+						index: i,
+						address: await Election.methods.candidate().call(),
+						voted: await Election.methods
+							.voters(accounts[0])
+							.call(),
+						contract_address: elections[i],
+					};
+					new_elections.push(curr_election);
+				} else {
+					const curr_election = {
+						index: i,
+						address: await Election.methods.candidate().call(),
+						result:
+							(await Election.methods.vote_yes().call()) >
+							(await Election.methods.vote_no().call()),
+						contract_address: elections[i],
+					};
+					old_elections.push(curr_election);
+				}
+			}
+			return [new_elections, old_elections];
+		})(elections);
+
 		this.setState({
 			ongoing_elections: all_elections[0],
 			past_elections: all_elections[1],
+			ongoing_de_elections: all_de_elections[0],
+			past_de_elections: all_de_elections[1],
 			is_manager: is_manager,
 		});
 		this.continuouslyUpdate();
@@ -114,9 +158,50 @@ class VotePage extends Component {
 			const is_manager = await PostFactory.methods
 				.managers_map(accounts[0])
 				.call();
+
+			elections = await PostFactory.methods
+				.getOngoingDeElections()
+				.call();
+			let all_de_elections = await (async function (elections) {
+				let new_elections = [];
+				let old_elections = [];
+				for (let i = 0; i < elections.length; i++) {
+					const Election = new web3.eth.Contract(
+						JSON.parse(DeElectionContract.interface),
+						elections[i]
+					);
+					const voting_ended = await Election.methods
+						.isElectionEnded(Math.floor(Date.now() / 1000))
+						.call();
+					if (!voting_ended) {
+						const curr_election = {
+							index: i,
+							address: await Election.methods.candidate().call(),
+							voted: await Election.methods
+								.voters(accounts[0])
+								.call(),
+							contract_address: elections[i],
+						};
+						new_elections.push(curr_election);
+					} else {
+						const curr_election = {
+							index: i,
+							address: await Election.methods.candidate().call(),
+							result:
+								(await Election.methods.vote_yes().call()) >
+								(await Election.methods.vote_no().call()),
+							contract_address: elections[i],
+						};
+						old_elections.push(curr_election);
+					}
+				}
+				return [new_elections, old_elections];
+			})(elections);
 			this.setState({
 				ongoing_elections: all_elections[0],
 				past_elections: all_elections[1],
+				ongoing_de_elections: all_de_elections[0],
+				past_de_elections: all_de_elections[1],
 				is_manager: is_manager,
 			});
 		}, 10000);
@@ -125,6 +210,62 @@ class VotePage extends Component {
 	takeback = (event) => {
 		event.preventDefault();
 		this.setState({ metamask: true, is_donate: false });
+	};
+
+	removeAdmin = async (event) => {
+		event.preventDefault();
+		accounts = await web3.eth.getAccounts();
+		if (metamask_provider == false || accounts.length == 0) {
+			this.setState({ metamask: false });
+		} else {
+			this.setState({ metamask: true });
+			const address = document.getElementById("admin_id").value;
+			await PostFactory.methods
+				.newDeElection(address)
+				.send({ from: accounts[0] });
+			let elections = await PostFactory.methods
+				.getOngoingDeElections()
+				.call();
+			let all_elections = await (async function (elections) {
+				let new_elections = [];
+				let old_elections = [];
+				for (let i = 0; i < elections.length; i++) {
+					const Election = new web3.eth.Contract(
+						JSON.parse(DeElectionContract.interface),
+						elections[i]
+					);
+					const voting_ended = await Election.methods
+						.isElectionEnded(Math.floor(Date.now() / 1000))
+						.call();
+					if (!voting_ended) {
+						const curr_election = {
+							index: i,
+							address: await Election.methods.candidate().call(),
+							voted: await Election.methods
+								.voters(accounts[0])
+								.call(),
+							contract_address: elections[i],
+						};
+						new_elections.push(curr_election);
+					} else {
+						const curr_election = {
+							index: i,
+							address: await Election.methods.candidate().call(),
+							result:
+								(await Election.methods.vote_yes().call()) >
+								(await Election.methods.vote_no().call()),
+							contract_address: elections[i],
+						};
+						old_elections.push(curr_election);
+					}
+				}
+				return [new_elections, old_elections];
+			})(elections);
+			this.setState({
+				ongoing_de_elections: all_elections[0],
+				past_de_elections: all_elections[1],
+			});
+		}
 	};
 
 	nominateMyself = async (event) => {
@@ -235,6 +376,63 @@ class VotePage extends Component {
 		});
 	};
 
+	deVoteUp = async (event) => {
+		event.preventDefault();
+		event.persist();
+		accounts = await web3.eth.getAccounts();
+		const index = event.target.getAttribute("data-index");
+		let elections = await PostFactory.methods
+			.getOngoingDeElections()
+			.call();
+		const election_address = elections[index];
+		const Election = new web3.eth.Contract(
+			JSON.parse(DeElectionContract.interface),
+			election_address
+		);
+		await Election.methods
+			.voteFor(accounts[0], Math.floor(Date.now() / 1000))
+			.send({ from: accounts[0] });
+		let all_elections = await (async function (elections) {
+			let new_elections = [];
+			let old_elections = [];
+			for (let i = 0; i < elections.length; i++) {
+				const Election = new web3.eth.Contract(
+					JSON.parse(DeElectionContract.interface),
+					elections[i]
+				);
+				const voting_ended = await Election.methods
+					.isElectionEnded(Math.floor(Date.now() / 1000))
+					.call();
+				if (!voting_ended) {
+					const curr_election = {
+						index: i,
+						address: await Election.methods.candidate().call(),
+						voted: await Election.methods
+							.voters(accounts[0])
+							.call(),
+						contract_address: elections[i],
+					};
+					new_elections.push(curr_election);
+				} else {
+					const curr_election = {
+						index: i,
+						address: await Election.methods.candidate().call(),
+						result:
+							(await Election.methods.vote_yes().call()) >
+							(await Election.methods.vote_no().call()),
+						contract_address: elections[i],
+					};
+					old_elections.push(curr_election);
+				}
+			}
+			return [new_elections, old_elections];
+		})(elections);
+		this.setState({
+			ongoing_elections: all_elections[0],
+			past_elections: all_elections[1],
+		});
+	};
+
 	voteDown = async (event) => {
 		event.preventDefault();
 		event.persist();
@@ -285,8 +483,65 @@ class VotePage extends Component {
 			return [new_elections, old_elections];
 		})(elections);
 		this.setState({
-			ongoing_elections: all_elections[0],
-			past_elections: all_elections[1],
+			ongoing_de_elections: all_elections[0],
+			past_de_elections: all_elections[1],
+		});
+	};
+
+	deVoteDown = async (event) => {
+		event.preventDefault();
+		event.persist();
+		accounts = await web3.eth.getAccounts();
+		const index = event.target.getAttribute("data-index");
+		let elections = await PostFactory.methods
+			.getOngoingDeElections()
+			.call();
+		const election_address = elections[index];
+		const Election = new web3.eth.Contract(
+			JSON.parse(DeElectionContract.interface),
+			election_address
+		);
+		await Election.methods
+			.voteAgainst(accounts[0], Math.floor(Date.now() / 1000))
+			.send({ from: accounts[0] });
+		let all_elections = await (async function (elections) {
+			let new_elections = [];
+			let old_elections = [];
+			for (let i = 0; i < elections.length; i++) {
+				const Election = new web3.eth.Contract(
+					JSON.parse(DeElectionContract.interface),
+					elections[i]
+				);
+				const voting_ended = await Election.methods
+					.isElectionEnded(Math.floor(Date.now() / 1000))
+					.call();
+				if (!voting_ended) {
+					const curr_election = {
+						index: i,
+						address: await Election.methods.candidate().call(),
+						voted: await Election.methods
+							.voters(accounts[0])
+							.call(),
+						contract_address: elections[i],
+					};
+					new_elections.push(curr_election);
+				} else {
+					const curr_election = {
+						index: i,
+						address: await Election.methods.candidate().call(),
+						result:
+							(await Election.methods.vote_yes().call()) >
+							(await Election.methods.vote_no().call()),
+						contract_address: elections[i],
+					};
+					old_elections.push(curr_election);
+				}
+			}
+			return [new_elections, old_elections];
+		})(elections);
+		this.setState({
+			ongoing_de_elections: all_elections[0],
+			past_de_elections: all_elections[1],
 		});
 	};
 
@@ -351,11 +606,18 @@ class VotePage extends Component {
 							nominateMyself={this.nominateMyself}
 						/>
 					)}
+					{this.state.is_manager ? null : (
+						<RemoveAdmin removeAdmin={this.removeAdmin} />
+					)}
 					<VotingPage
 						ongoing_elections={this.state.ongoing_elections}
 						past_elections={this.state.past_elections}
 						vote_up={this.voteUp}
 						vote_down={this.voteDown}
+						vote_up_1={this.deVoteUp}
+						vote_down_1={this.deVoteDown}
+						ongoing_de_elections={this.state.ongoing_de_elections}
+						past_de_elections={this.state.past_de_elections}
 					/>
 				</div>
 			</div>
