@@ -146,7 +146,7 @@ contract Post {
     }
 
     function deletePost() public {
-        require(factory.managers_map(msg.sender));
+        require(factory.managers_map(msg.sender) || msg.sender == author);
         address caller = msg.sender;
 
         // delete current post from parent array
@@ -222,10 +222,6 @@ contract election{
         }
     }
 
-    function timePassed() public view returns(uint256) {
-        return now - createTime;
-    }
-
     function isElectionEnded(uint256 timestamp) public view returns(bool) {
         return (timestamp > createTime + 30 seconds);
     }
@@ -288,7 +284,10 @@ contract deElection{
 
     function removeAdmin(uint256 timestamp) public {
         require(isElectionEnded(timestamp));
+        require(vote_yes > vote_no);
         factory.removeManager(candidate);
         
     }
 }
+
+// 0x8ea407801Ff079dedC4e01D12a106A0F82741a5c

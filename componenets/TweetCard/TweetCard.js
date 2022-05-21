@@ -2,13 +2,10 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import CommentCard from "../CommentCard/CommentCard";
 import styles from "./TweetCard.module.css";
+import { web3, metamaskProvider } from "../../ethereum/web3";
 
 const tweetCard = (props) => {
-	console.log(props.post);
 	const router = useRouter();
-	useEffect(() => {
-		props.isLoaded();
-	}, []);
 	return (
 		<div
 			className="card"
@@ -100,6 +97,24 @@ const tweetCard = (props) => {
 					/>
 					<span>Tip this post</span>
 				</button>
+				{props.current_user === props.post.author ? (
+					<button
+						className={
+							"btn btn-outline-danger " + styles.mobilebutton
+						}
+						onClick={props.delete}
+						data-index={props.postLength - 1 - props.index}
+					>
+						<i
+							className="fas fa-trash-alt"
+							style={{ margin: "0 5px" }}
+							data-index={props.postLength - 1 - props.index}
+						></i>
+						<span data-index={props.postLength - 1 - props.index}>
+							Delete this post
+						</span>
+					</button>
+				) : null}
 				<button
 					className={"btn btn-outline-primary " + styles.mobilebutton}
 					style={{

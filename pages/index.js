@@ -31,11 +31,13 @@ class PostIndex extends Component {
 			tip_post_key: 0,
 			donating: false,
 			disable_transact_okay: true,
+			current_user: "",
 		};
 	}
 
 	async componentDidMount() {
 		accounts = await web3.eth.getAccounts();
+		this.setState({ current_user: accounts[0] });
 	}
 
 	isLoaded = () => {
@@ -46,7 +48,6 @@ class PostIndex extends Component {
 
 	static async getInitialProps() {
 		const posts = await PostFactory.methods.getPosts().call();
-		console.log(posts);
 		let new_posts = await (async function (posts) {
 			let new_posts = [];
 			for (let i = 0; i < posts.length; i++) {
@@ -302,6 +303,39 @@ class PostIndex extends Component {
 		this.setState({ content: event.target.value });
 	};
 
+	delete = async (event) => {
+		event.preventDefault();
+		const index = event.target.getAttribute("data-index");
+		const post_address = await PostFactory.methods
+			.deployedPosts(index)
+			.call();
+		const Post = new web3.eth.Contract(
+			JSON.parse(PostContract.interface),
+			post_address
+		);
+		await Post.methods.deletePost().send({ from: accounts[0] });
+		const posts = await PostFactory.methods.getPosts().call();
+		let new_posts = await (async function (posts) {
+			let new_posts = [];
+			for (let i = 0; i < posts.length; i++) {
+				const Post = new web3.eth.Contract(
+					JSON.parse(PostContract.interface),
+					posts[i]
+				);
+				const currentPost = {
+					address: posts[i],
+					imageUrl: await Post.methods.image_hash().call(),
+					author: await Post.methods.author().call(),
+					content: await Post.methods.content().call(),
+					comments: [],
+				};
+				new_posts.push(currentPost);
+			}
+			return new_posts;
+		})(posts);
+		this.setState({ posts: new_posts });
+	};
+
 	render() {
 		return (
 			<div className="row" style={{}}>
@@ -354,9 +388,6 @@ class PostIndex extends Component {
 					{this.state.metamask == false && (
 						<MetamaskCard takeback={this.takeback} />
 					)}
-					{this.state.loading != this.state.posts.length && (
-						<LoadingCard />
-					)}
 					{this.state.zoomed !== null && (
 						<ZoomedImage
 							zoomed={this.state.zoomed}
@@ -390,6 +421,8 @@ class PostIndex extends Component {
 									key={index}
 									imageLoaded={this.imageLoaded}
 									isLoaded={this.isLoaded}
+									current_user={this.state.current_user}
+									delete={this.delete}
 								/>
 							))}
 					</div>
