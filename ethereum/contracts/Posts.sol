@@ -214,7 +214,8 @@ contract election{
     }
 
     
-    function voteFor(address voter, uint256 timestamp) public {
+    function voteFor(address voter, uint256 timestamp) 
+    public {
         require(!isElectionEnded(timestamp));
         if(voters[voter] == false){
             voters[voter] = true;
@@ -223,7 +224,8 @@ contract election{
         
     }
 
-    function voteAgainst(address voter, uint256 timestamp) public {
+    function voteAgainst(address voter, uint256 timestamp) 
+    public {
         require(!isElectionEnded(timestamp));
         if(voters[voter] == false){
             voters[voter] = false;
@@ -231,7 +233,8 @@ contract election{
         }
     }
 
-    function isElectionEnded(uint256 timestamp) public view returns(bool) {
+    function isElectionEnded(uint256 timestamp) 
+    public view returns(bool) {
         return (timestamp > createTime + 30 seconds);
     }
 
@@ -266,7 +269,8 @@ contract deElection{
     }
 
     
-    function voteFor(address voter, uint256 timestamp) public {
+    function voteFor(address voter, uint256 timestamp) 
+    public {
         require(!isElectionEnded(timestamp));
         if(voters[voter] == false){
             voters[voter] = true;
@@ -275,7 +279,8 @@ contract deElection{
         
     }
 
-    function voteAgainst(address voter, uint256 timestamp) public {
+    function voteAgainst(address voter, uint256 timestamp) 
+    public {
         require(!isElectionEnded(timestamp));
         if(voters[voter] == false){
             voters[voter] = false;
@@ -283,7 +288,8 @@ contract deElection{
         }
     }
 
-    function isElectionEnded(uint256 timestamp) public view returns(bool) {
+    function isElectionEnded(uint256 timestamp) 
+    public view returns(bool) {
         return (timestamp > createTime + 30 seconds);
     }
 
